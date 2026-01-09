@@ -1,51 +1,61 @@
-<h2>Application Heures de Travail</h2>
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <title>Calendrier de travail</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      padding: 20px;
+      background: #f4f6f8;
+    }
+    h1 {
+      text-align: center;
+    }
+    .calendar {
+      display: grid;
+      grid-template-columns: repeat(7, 1fr);
+      gap: 10px;
+      max-width: 900px;
+      margin: auto;
+    }
+    .day {
+      background: white;
+      border-radius: 8px;
+      padding: 10px;
+      min-height: 100px;
+      cursor: pointer;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    }
+    .day:hover {
+      background: #e9f0ff;
+    }
+    .number {
+      font-weight: bold;
+    }
+  </style>
+</head>
+<body>
 
-<form id="workForm" action="https://formsubmit.co/sonialancamiranda@gmail.com" method="POST">
+<h1>📅 Calendrier mensuel</h1>
 
-  <input type="hidden" name="_captcha" value="false">
-  <input type="hidden" name="_subject" value="Notification heures employé">
+<div class="calendar">
+  <div class="day"><div class="number">1</div></div>
+  <div class="day"><div class="number">2</div></div>
+  <div class="day"><div class="number">3</div></div>
+  <div class="day"><div class="number">4</div></div>
+  <div class="day"><div class="number">5</div></div>
+  <div class="day"><div class="number">6</div></div>
+  <div class="day"><div class="number">7</div></div>
+  <div class="day"><div class="number">8</div></div>
+  <div class="day"><div class="number">9</div></div>
+  <div class="day"><div class="number">10</div></div>
+  <div class="day"><div class="number">11</div></div>
+  <div class="day"><div class="number">12</div></div>
+  <div class="day"><div class="number">13</div></div>
+  <div class="day"><div class="number">14</div></div>
+  <div class="day"><div class="number">15</div></div>
+</div>
 
-  <label>Nom de l'employé</label><br>
-  <input type="text" name="Employé" required><br><br>
-
-  <label>Date</label><br>
-  <input type="date" id="date" name="Date" required><br><br>
-
-  <label>Heures travaillées</label><br>
-  <input type="number" id="hours" name="Heures du jour" required><br><br>
-
-  <label>Total semaine</label><br>
-  <input type="number" id="totalWeek" name="Total semaine" readonly><br><br>
-
-  <label>Total mois</label><br>
-  <input type="number" id="totalMonth" name="Total mois" readonly><br><br>
-
-  <label>Action</label><br>
-  <select name="Action">
-    <option>Ajout</option>
-    <option>Correction</option>
-    <option>Suppression</option>
-    <option>Validation</option>
-  </select><br><br>
-
-  <label>Commentaire</label><br>
-  <textarea name="Commentaire"></textarea><br><br>
-
-  <button type="submit">Envoyer</button>
-</form>
-const hoursInput = document.getElementById("hours");
-const totalWeekInput = document.getElementById("totalWeek");
-const totalMonthInput = document.getElementById("totalMonth");
-
-let weekTotal = 0;
-let monthTotal = 0;
-
-hoursInput.addEventListener("input", () => {
-  const hours = Number(hoursInput.value) || 0;
-
-  weekTotal += hours;
-  monthTotal += hours;
-
-  totalWeekInput.value = weekTotal;
-  totalMonthInput.value = monthTotal;
-});
+</body>
+</html>
