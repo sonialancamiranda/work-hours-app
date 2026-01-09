@@ -1,114 +1,92 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-  <meta charset="UTF-8">
-  <title>Heures de travail</title>
-  <style>
-    body {
-      font-family: Arial, sans-serif;
-      background: #f4f6f8;
-      padding: 20px;
-    }
-    h1 {
-      text-align: center;
-    }
+<meta charset="UTF-8">
+<title>Calendrier mensuel</title>
+<style>
+body {
+  font-family: Arial, sans-serif;
+  background: #f4f6fb;
+  padding: 20px;
+}
 
-    .calendar {
-      display: grid;
-      grid-template-columns: repeat(6, 1fr);
-      gap: 10px;
-      max-width: 1100px;
-      margin: auto;
-    }
+h1 {
+  text-align: center;
+}
 
-    .header {
-      text-align: center;
-      font-weight: bold;
-      padding: 10px;
-      background: #dbe4ff;
-      border-radius: 8px;
-    }
+.calendar {
+  display: grid;
+  grid-template-columns: repeat(6, 1fr);
+  gap: 10px;
+}
 
-    .day {
-      background: white;
-      border-radius: 10px;
-      padding: 10px;
-      min-height: 140px;
-      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-      cursor: pointer;
-    }
+.header {
+  background: #dbe4ff;
+  padding: 10px;
+  text-align: center;
+  font-weight: bold;
+  border-radius: 6px;
+}
 
-    .day:hover {
-      background: #eef3ff;
-    }
+.day {
+  background: white;
+  min-height: 110px;
+  padding: 8px;
+  border-radius: 8px;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+}
 
-    .date {
-      font-weight: bold;
-      margin-bottom: 10px;
-    }
-  </style>
+.day strong {
+  display: block;
+  margin-bottom: 5px;
+}
+</style>
 </head>
+
 <body>
 
-<h1>📅 Calendrier mensuel – Encodage des heures</h1>
+<h1>📅 Calendrier mensuel</h1>
 
-<div class="calendar">
+<div class="calendar" id="calendar">
   <div class="header">Lundi</div>
   <div class="header">Mardi</div>
   <div class="header">Mercredi</div>
   <div class="header">Jeudi</div>
   <div class="header">Vendredi</div>
   <div class="header">Samedi</div>
-
-  <div class="day"><div class="date">1</div></div>
-  <div class="day"><div class="date">2</div></div>
-  <div class="day"><div class="date">3</div></div>
-  <div class="day"><div class="date">4</div></div>
-  <div class="day"><div class="date">5</div></div>
-  <div class="day"><div class="date">6</div></div>
-</div>
-  <!-- Formulaire caché -->
-<div id="formPopup" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.4);">
-  <div style="background:white; max-width:400px; margin:100px auto; padding:20px; border-radius:10px;">
-    <h3>Encodage – Jour <span id="selectedDay"></span></h3>
-
-    <label>Nom du travailleur</label>
-    <input type="text" id="worker" style="width:100%; margin-bottom:10px;">
-
-    <label>Heures travaillées</label>
-    <input type="number" id="hours" style="width:100%; margin-bottom:10px;">
-
-    <label>Commentaire</label>
-    <textarea id="comment" style="width:100%;"></textarea>
-
-    <br><br>
-    <button onclick="sendData()">Envoyer</button>
-    <button onclick="closeForm()">Annuler</button>
-  </div>
 </div>
 
 <script>
-  const days = document.querySelectorAll('.day');
-  const popup = document.getElementById('formPopup');
-  const selectedDay = document.getElementById('selectedDay');
+const calendar = document.getElementById("calendar");
 
-  days.forEach(day => {
-    day.addEventListener('click', () => {
-      selectedDay.textContent = day.innerText;
-      popup.style.display = 'block';
-    });
-  });
+const today = new Date();
+const year = today.getFullYear();
+const month = today.getMonth();
 
-  function closeForm() {
-    popup.style.display = 'none';
-  }
+// Premier jour du mois
+const firstDay = new Date(year, month, 1).getDay();
+// Ajustement pour lundi = 0
+const startDay = (firstDay + 6) % 7;
 
-  function sendData() {
-    alert("Encodage envoyé (prochaine étape : email)");
-    closeForm();
-  }
+// Nombre de jours dans le mois
+const daysInMonth = new Date(year, month + 1, 0).getDate();
+
+// Cases vides avant le 1er jour
+for (let i = 0; i < startDay; i++) {
+  calendar.appendChild(document.createElement("div"));
+}
+
+// Jours du mois (sans dimanche)
+for (let day = 1; day <= daysInMonth; day++) {
+  const date = new Date(year, month, day);
+  if (date.getDay() === 0) continue; // dimanche ignoré
+
+  const cell = document.createElement("div");
+  cell.className = "day";
+  cell.innerHTML = `<strong>${day}</strong>`;
+  calendar.appendChild(cell);
+}
 </script>
-
 
 </body>
 </html>
