@@ -1,13 +1,8 @@
-<div style="text-align:center; margin-bottom:20px;">
-  <h1 style="font-size:32px;">A Master’s Cleaning</h1>
-  <p style="font-size:18px;">Calendrier mensuel – Encodage des heures</p>
-</div>
-
 <!DOCTYPE html>
 <html lang="fr">
 <head>
 <meta charset="UTF-8">
-<title>A Master's Cleaning</title>
+<title>A Master’s Cleaning</title>
 
 <style>
 body {
@@ -16,22 +11,31 @@ body {
   padding: 20px;
 }
 
-h1 {
+.header {
   text-align: center;
+  margin-bottom: 20px;
 }
 
 .calendar {
   display: grid;
+  grid-template-columns: repeat(6, 1fr); /* Lundi → Samedi */
+  gap: 10px;
+}
+
+.weekdays {
+  display: grid;
   grid-template-columns: repeat(6, 1fr);
   gap: 10px;
-  margin-top: 20px;
+  font-weight: bold;
+  text-align: center;
+  margin-bottom: 10px;
 }
 
 .day {
   background: white;
   border-radius: 8px;
   padding: 10px;
-  min-height: 120px;
+  min-height: 130px;
   box-shadow: 0 2px 5px rgba(0,0,0,0.1);
 }
 
@@ -40,20 +44,23 @@ h1 {
   margin-bottom: 5px;
 }
 </style>
-  .weekdays {
-  display: grid;
-  grid-template-columns: repeat(6, 1fr);
-  gap: 10px;
-  margin-bottom: 10px;
-  font-weight: bold;
-  text-align: center;
-}
-
 </head>
 
 <body>
 
-<h1>📅 Calendrier mensuel – Heures de travail</h1>
+<div class="header">
+  <h1>A Master’s Cleaning</h1>
+  <p>Calendrier mensuel – Encodage des heures</p>
+</div>
+
+<div class="weekdays">
+  <div>Lundi</div>
+  <div>Mardi</div>
+  <div>Mercredi</div>
+  <div>Jeudi</div>
+  <div>Vendredi</div>
+  <div>Samedi</div>
+</div>
 
 <div class="calendar" id="calendar"></div>
 
@@ -68,19 +75,14 @@ for (let i = 1; i <= daysInMonth; i++) {
   day.innerHTML = `
     <div class="day-title">Jour ${i}</div>
     <input type="text" placeholder="Heures" style="width:100%; margin-bottom:4px;">
-    <input type="text" placeholder="Heures">
+    <input type="text" placeholder="Heures" style="width:100%; margin-bottom:4px;">
+    <input type="text" placeholder="Heures" style="width:100%; margin-bottom:4px;">
+    <input type="text" placeholder="Heures" style="width:100%; margin-bottom:4px;">
+    <input type="text" placeholder="Heures" style="width:100%;">
   `;
 
   calendar.appendChild(day);
-}.weekdays {
-  display: grid;
-  grid-template-columns: repeat(6, 1fr);
-  gap: 10px;
-  margin-bottom: 10px;
-  font-weight: bold;
-  text-align: center;
 }
-
 </script>
 
 </body>
