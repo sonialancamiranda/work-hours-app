@@ -34,7 +34,7 @@ body {
 
 .weekdays {
   display: grid;
-  grid-template-columns: repeat(6, 1fr);
+  grid-template-columns: repeat(5, 1fr);
   gap: 10px;
   font-weight: bold;
   text-align: center;
@@ -43,7 +43,7 @@ body {
 
 .calendar {
   display: grid;
-  grid-template-columns: repeat(6, 1fr);
+  grid-template-columns: repeat(5, 1fr);
   gap: 10px;
   pointer-events: none;
   opacity: 0.4;
@@ -53,7 +53,7 @@ body {
   background: white;
   border-radius: 8px;
   padding: 10px;
-  min-height: 180px;
+  min-height: 170px;
   box-shadow: 0 2px 5px rgba(0,0,0,0.1);
 }
 
@@ -77,7 +77,7 @@ body {
 }
 
 .week-total {
-  grid-column: span 6;
+  grid-column: span 5;
   background: #eaeaea;
   padding: 10px;
   border-radius: 6px;
@@ -127,7 +127,6 @@ body {
   <div>Mercredi</div>
   <div>Jeudi</div>
   <div>Vendredi</div>
-  <div>Samedi</div>
 </div>
 
 <div class="calendar" id="calendar"></div>
@@ -171,7 +170,7 @@ for (let i = 1; i <= daysInMonth; i++) {
 
   calendar.appendChild(day);
 
-  if (i % 6 === 0 || i === daysInMonth) {
+  if (i % 5 === 0 || i === daysInMonth) {
     const weekTotal = document.createElement("div");
     weekTotal.className = "week-total";
     weekTotal.innerHTML = `Total semaine ${weekIndex} : <span class="week-total-value">0</span> h`;
@@ -207,17 +206,17 @@ document.addEventListener("input", () => {
     day.querySelectorAll(".hour").forEach(h => {
       dayTotal += Number(h.value) || 0;
     });
-    day.querySelector(".day-total").textContent = dayTotal;
 
+    day.querySelector(".day-total").textContent = dayTotal;
     monthTotal += dayTotal;
     weekTotal += dayTotal;
     weekCounter++;
 
-    if (weekCounter === 6) {
+    if (weekCounter === 5) {
       weekTotals[w].textContent = weekTotal;
       w++;
-      weekTotal = 0;
       weekCounter = 0;
+      weekTotal = 0;
     }
   });
 
