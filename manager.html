@@ -1,41 +1,49 @@
-
 <!DOCTYPE html>
 <html lang="fr">
 <head>
 <meta charset="UTF-8">
 <title>Espace Manager – A Master’s Cleaning</title>
 
-<!-- Librairie Excel -->
-<script src="https://cdn.jsdelivr.net/npm/xlsx/dist/xlsx.full.min.js"></script>
-
 <style>
 body {
   font-family: Arial, sans-serif;
-  background: #f7f7f7;
-  padding: 20px;
+  background: #f5f5f5;
+  padding: 30px;
 }
 
 .container {
   max-width: 900px;
   margin: auto;
   background: white;
-  padding: 20px;
+  padding: 25px;
   border-radius: 10px;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.1);
 }
 
 h1 {
   text-align: center;
 }
 
-button {
-  padding: 10px 20px;
-  font-size: 16px;
-  cursor: pointer;
+table {
+  width: 100%;
+  border-collapse: collapse;
   margin-top: 20px;
 }
 
-.hidden {
-  display: none;
+th, td {
+  border: 1px solid #ccc;
+  padding: 8px;
+  text-align: center;
+}
+
+th {
+  background: #f0f0f0;
+}
+
+button {
+  margin-top: 20px;
+  padding: 10px 15px;
+  cursor: pointer;
 }
 </style>
 </head>
@@ -43,57 +51,93 @@ button {
 <body>
 
 <div class="container">
-
   <h1>🔐 Espace Manager</h1>
+  <p>Vue globale des heures encodées</p>
 
-  <!-- LOGIN -->
-  <div id="login">
-    <p>Mot de passe manager :</p>
-    <input type="password" id="password">
-    <br><br>
-    <button onclick="checkPassword()">Entrer</button>
-    <p id="error" style="color:red;"></p>
-  </div>
+  <table>
+    <thead>
+      <tr>
+        <th>Travailleur</th>
+        <th>Heures prestées</th>
+        <th>Vacances</th>
+        <th>Jours fériés</th>
+        <th>Total</th>
+      </tr>
+    </thead>
+    <tbody id="dataTable">
+      <tr>
+        <td colspan="5">Aucune donnée trouvée</td>
+      </tr>
+    </tbody>
+  </table>
 
-  <!-- CONTENU MANAGER -->
-  <div id="managerContent" class="hidden">
-    <h2>A Master’s Cleaning</h2>
-    <p>Export des heures encodées</p>
-
-    <button onclick="exportExcel()">📊 Export Excel</button>
-  </div>
-
+  <button onclick="exportExcel()">📤 Export Excel</button>
 </div>
 
 <script>
-const MANAGER_PASSWORD = "Kes131577@284666577";
+function loadData() {
+  const data = JSON.parse(localStorage.getItem("workHoursData")) || [];
+  const table = document.getElementById("dataTable");
+  table.innerHTML = "";
 
-function checkPassword() {
-  const input = document.getElementById("password").value;
-  if (input === MANAGER_PASSWORD) {
-    document.getElementById("login").style.display = "none";
-    document.getElementById("managerContent").classList.remove("hidden");
-  } else {
-    document.getElementById("error").innerText = "Mot de passe incorrect";
+  if (data.length === 0) {
+    table.innerHTML = "<tr><td colspan='5'>Aucune donnée trouvée</td></tr>";
+    return;
   }
+
+  let totalWork = 0, totalVac = 0, totalFer = 0;
+
+  data.forEach(item => {
+    totalWork += item.work;
+    totalVac += item.vacation;
+    totalFer += item.holiday;
+
+    table.innerHTML += `
+      <tr>
+        <td>${item.name}</td>
+        <td>${item.work}</td>
+        <td>${item.vacation}</td>
+        <td>${item.holiday}</td>
+        <td>${item.work + item.vacation + item.holiday}</td>
+      </tr>
+    `;
+  });
+
+  table.innerHTML += `
+    <tr style="font-weight:bold;background:#eee">
+      <td>TOTAL</td>
+      <td>${totalWork}</td>
+      <td>${totalVac}</td>
+      <td>${totalFer}</td>
+      <td>${totalWork + totalVac + totalFer}</td>
+    </tr>
+  `;
 }
 
 function exportExcel() {
-  const data = JSON.parse(localStorage.getItem("workHours")) || [];
-
+  const data = JSON.parse(localStorage.getItem("workHoursData")) || [];
   if (data.length === 0) {
     alert("Aucune donnée à exporter");
     return;
   }
 
-  const worksheet = XLSX.utils.json_to_sheet(data);
-  const workbook = XLSX.utils.book_new();
-  XLSX.utils.book_append_sheet(workbook, worksheet, "Heures");
+  let csv = "Travailleur,Heures prestées,Vacances,Jours fériés,Total\n";
+  data.forEach(d => {
+    csv += `${d.name},${d.work},${d.vacation},${d.holiday},${d.work+d.vacation+d.holiday}\n`;
+  });
 
-  XLSX.writeFile(workbook, "heures_travail.xlsx");
+  const blob = new Blob([csv], { type: "text/csv" });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = "heures_mensuelles.csv";
+  a.click();
 }
+
+loadData();
 </script>
 
 </body>
 </html>
+
 
