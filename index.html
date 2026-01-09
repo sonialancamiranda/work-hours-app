@@ -1,9 +1,9 @@
-
 <!DOCTYPE html>
 <html lang="fr">
 <head>
 <meta charset="UTF-8">
 <title>Calendrier mensuel</title>
+
 <style>
 body {
   font-family: Arial, sans-serif;
@@ -17,7 +17,7 @@ h1 {
 
 .calendar {
   display: grid;
-  grid-template-columns: repeat(6, 1fr);
+  grid-template-columns: repeat(7, 1fr);
   gap: 10px;
 }
 
@@ -37,58 +37,11 @@ h1 {
   box-shadow: 0 2px 5px rgba(0,0,0,0.1);
 }
 
+.sunday {
+  display: none;
+}
+
 .day strong {
   display: block;
-  margin-bottom: 5px;
-}
-</style>
-</head>
-
-<body>
-
-<h1>📅 Calendrier mensuel</h1>
-
-<div class="calendar" id="calendar">
-  <div class="header">Lundi</div>
-  <div class="header">Mardi</div>
-  <div class="header">Mercredi</div>
-  <div class="header">Jeudi</div>
-  <div class="header">Vendredi</div>
-  <div class="header">Samedi</div>
-</div>
-
-<script>
-const calendar = document.getElementById("calendar");
-
-const today = new Date();
-const year = today.getFullYear();
-const month = today.getMonth();
-
-// Premier jour du mois
-const firstDay = new Date(year, month, 1).getDay();
-// Ajustement pour lundi = 0
-const startDay = (firstDay + 6) % 7;
-
-// Nombre de jours dans le mois
-const daysInMonth = new Date(year, month + 1, 0).getDate();
-
-// Cases vides avant le 1er jour
-for (let i = 0; i < startDay; i++) {
-  calendar.appendChild(document.createElement("div"));
-}
-
-// Jours du mois (sans dimanche)
-for (let day = 1; day <= daysInMonth; day++) {
-  const date = new Date(year, month, day);
-  if (date.getDay() === 0) continue; // dimanche ignoré
-
-  const cell = document.createElement("div");
-  cell.className = "day";
-  cell.innerHTML = `<strong>${day}</strong>`;
-  calendar.appendChild(cell);
-}
-</script>
-
-</body>
-</html>
+  margin-bottom: 5p
 
