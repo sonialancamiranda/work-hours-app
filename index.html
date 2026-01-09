@@ -2,7 +2,7 @@
 <html lang="fr">
 <head>
 <meta charset="UTF-8">
-<title>A Master’s Cleaning – Encodage des heures</title>
+<title>A Master’s Cleaning</title>
 
 <style>
 body {
@@ -11,30 +11,50 @@ body {
   padding: 20px;
 }
 
-.container {
-  max-width: 900px;
-  margin: auto;
-  background: white;
-  padding: 20px;
-  border-radius: 10px;
+.header {
+  text-align: center;
+  margin-bottom: 20px;
 }
 
-input {
-  width: 100%;
-  padding: 6px;
+.logo {
+  max-width: 180px;
   margin-bottom: 10px;
 }
 
-button {
-  padding: 10px 15px;
-  cursor: pointer;
-  margin-top: 10px;
+input, select, textarea {
+  width: 100%;
+  padding: 4px;
+  margin-bottom: 4px;
+}
+
+.weekdays, .calendar {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 10px;
+}
+
+.weekdays {
+  font-weight: bold;
+  text-align: center;
+  margin-bottom: 10px;
+}
+
+.day {
+  background: white;
+  padding: 8px;
+  border-radius: 8px;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+}
+
+.total-day {
+  font-weight: bold;
+  margin-top: 5px;
 }
 
 .totals {
   margin-top: 20px;
+  background: white;
   padding: 15px;
-  background: #f0f0f0;
   border-radius: 8px;
 }
 </style>
@@ -42,79 +62,131 @@ button {
 
 <body>
 
-<div class="container">
-  <h1>🧹 A Master’s Cleaning</h1>
-  <p>Encodage mensuel des heures</p>
+<div class="header">
+  <img src="logo-amasters-cleaning.jpg" class="logo">
+  <h1>A Master’s Cleaning</h1>
+  <p>Calendrier mensuel – Encodage des heures</p>
+</div>
 
-  <input id="name" placeholder="Nom et prénom (obligatoire)">
+<input id="employeeName" placeholder="Nom et prénom (obligatoire)">
 
-  <label>Heures prestées</label>
-  <input type="number" id="work" value="0">
+<div class="weekdays">
+  <div>Lundi</div><div>Mardi</div><div>Mercredi</div>
+  <div>Jeudi</div><div>Vendredi</div>
+</div>
 
-  <label>Vacances</label>
-  <input type="number" id="vacation" value="0">
+<div class="calendar" id="calendar"></div>
 
-  <label>Jours fériés</label>
-  <input type="number" id="holiday" value="0">
+<div class="totals">
+  <p>Presté : <span id="workTotal">0</span> h</p>
+  <p>Vacances : <span id="vacationTotal">0</span> h</p>
+  <p>Férié : <span id="holidayTotal">0</span> h</p>
+  <hr>
+  <p>Total mois : <span id="monthlyTotal">0</span> h</p>
+</div>
 
-  <button onclick="saveData()">💾 Enregistrer</button>
-
-  <p id="msg"></p>
-
-  <div class="totals">
-    <p>🧑‍🔧 Heures prestées : <strong id="totalWork">0</strong> h</p>
-    <p>🏖️ Vacances : <strong id="totalVacation">0</strong> h</p>
-    <p>🎉 Jours fériés : <strong id="totalHoliday">0</strong> h</p>
-  </div>
+<div class="totals">
+  <textarea id="notes" placeholder="Notes / remarques"></textarea>
+  <input type="file">
 </div>
 
 <script>
+const daysInMonth = 31;
+const calendar = document.getElementById("calendar");
+
 function saveData() {
-  const name = document.getElementById("name").value.trim();
-  const work = Number(document.getElementById("work").value);
-  const vacation = Number(document.getElementById("vacation").value);
-  const holiday = Number(document.getElementById("holiday").value);
+  const data = {
+    name: employeeName.value,
+    days: [],
+    notes: notes.value
+  };
 
-  if (!name) {
-    alert("Le nom est obligatoire");
-    return;
-  }
-
-  let data = JSON.parse(localStorage.getItem("workHoursData")) || [];
-
-  // Supprimer ancien encodage du même travailleur
-  data = data.filter(d => d.name !== name);
-
-  data.push({ name, work, vacation, holiday });
-
-  localStorage.setItem("workHoursData", JSON.stringify(data));
-
-  updateTotals();
-
-  document.getElementById("msg").innerText =
-    "✅ Données enregistrées avec succès";
-}
-
-function updateTotals() {
-  let data = JSON.parse(localStorage.getItem("workHoursData")) || [];
-
-  let totalWork = 0;
-  let totalVacation = 0;
-  let totalHoliday = 0;
-
-  data.forEach(d => {
-    totalWork += d.work;
-    totalVacation += d.vacation;
-    totalHoliday += d.holiday;
+  document.querySelectorAll(".day").forEach(day => {
+    const dayData = [];
+    day.querySelectorAll(".entry").forEach(e => {
+      dayData.push({
+        client: e.querySelector(".client").value,
+        hours: e.querySelector(".hours").value,
+        type: e.querySelector(".type").value
+      });
+    });
+    data.days.push(dayData);
   });
 
-  document.getElementById("totalWork").innerText = totalWork;
-  document.getElementById("totalVacation").innerText = totalVacation;
-  document.getElementById("totalHoliday").innerText = totalHoliday;
+  localStorage.setItem("workHoursData", JSON.stringify(data));
 }
 
-// Charger les totaux au démarrage
-updateTotals();
+function loadData() {
+  const data = JSON.parse(localStorage.getItem("workHoursData"));
+  if (!data) return;
+
+  employeeName.value = data.name || "";
+  notes.value = data.notes || "";
+
+  document.querySelectorAll(".day").forEach((day, i) => {
+    if (!data.days[i]) return;
+    day.querySelectorAll(".entry").forEach((e, j) => {
+      if (!data.days[i][j]) return;
+      e.querySelector(".client").value = data.days[i][j].client;
+      e.querySelector(".hours").value = data.days[i][j].hours;
+      e.querySelector(".type").value = data.days[i][j].type;
+    });
+  });
+
+  calculateTotals();
+}
+
+function calculateTotals() {
+  let work=0, vacation=0, holiday=0;
+
+  document.querySelectorAll(".entry").forEach(e => {
+    const h = parseFloat(e.querySelector(".hours").value) || 0;
+    const t = e.querySelector(".type").value;
+    if (t==="work") work+=h;
+    if (t==="vacation") vacation+=h;
+    if (t==="holiday") holiday+=h;
+  });
+
+  workTotal.innerText = work;
+  vacationTotal.innerText = vacation;
+  holidayTotal.innerText = holiday;
+  monthlyTotal.innerText = work+vacation+holiday;
+}
+
+for (let i=1;i<=daysInMonth;i++){
+  const d=document.createElement("div");
+  d.className="day";
+  d.innerHTML=`
+    <strong>Jour ${i}</strong>
+    <div class="entry">
+      <input class="client" placeholder="Client">
+      <input class="hours" type="number" placeholder="Heures">
+      <select class="type">
+        <option value="work">Presté</option>
+        <option value="vacation">Vacances</option>
+        <option value="holiday">Férié</option>
+      </select>
+    </div>
+    <div class="entry">
+      <input class="client" placeholder="Client">
+      <input class="hours" type="number" placeholder="Heures">
+      <select class="type">
+        <option value="work">Presté</option>
+        <option value="vacation">Vacances</option>
+        <option value="holiday">Férié</option>
+      </select>
+    </div>
+    <div class="total-day"></div>
+  `;
+  calendar.appendChild(d);
+}
+
+document.addEventListener("input", () => {
+  calculateTotals();
+  saveData();
+});
+
+loadData();
 </script>
 
 </body>
