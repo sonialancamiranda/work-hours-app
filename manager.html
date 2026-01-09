@@ -1,50 +1,123 @@
+
 <!DOCTYPE html>
 <html lang="fr">
 <head>
 <meta charset="UTF-8">
-<title>Manager – A Master’s Cleaning</title>
+<title>Espace Manager – A Master’s Cleaning</title>
 
 <style>
 body {
   font-family: Arial, sans-serif;
-  background: #f7f7f7;
-  padding: 40px;
+  background: #f4f4f4;
+  padding: 30px;
+}
+
+.card {
+  background: white;
+  max-width: 900px;
+  margin: auto;
+  padding: 25px;
+  border-radius: 10px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+}
+
+h1 {
   text-align: center;
 }
 
-.box {
-  background: white;
-  padding: 30px;
-  border-radius: 10px;
-  max-width: 500px;
-  margin: auto;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 20px;
+}
+
+th, td {
+  border: 1px solid #ccc;
+  padding: 10px;
+  text-align: center;
+}
+
+th {
+  background: #eee;
+}
+
+.total {
+  font-weight: bold;
+  background: #f9f9f9;
 }
 </style>
 </head>
 
 <body>
 
-<script>
-const PASSWORD = "Kes131577@284666577";
-const entered = prompt("🔐 Accès manager – Entrez le mot de passe");
-
-if (entered !== PASSWORD) {
-  document.body.innerHTML = "<h2>⛔ Accès refusé</h2><p>Mot de passe incorrect</p>";
-}
-</script>
-
-<div class="box">
+<div class="card">
   <h1>👩‍💼 Espace Manager</h1>
-  <p>Bienvenue sur l’espace manager</p>
+  <p style="text-align:center;">Vue globale des heures mensuelles</p>
 
-  <ul style="text-align:left;">
-    <li>✔️ Consultation des heures</li>
-    <li>✔️ Vérification des totaux</li>
-    <li>✔️ Gestion des travailleurs</li>
-  </ul>
+  <table>
+    <thead>
+      <tr>
+        <th>Travailleur</th>
+        <th>Heures prestées</th>
+        <th>Vacances</th>
+        <th>Jours fériés</th>
+        <th>Total mensuel</th>
+      </tr>
+    </thead>
+    <tbody id="managerTable"></tbody>
+  </table>
 </div>
+
+<script>
+// 🔐 Mot de passe manager
+const PASSWORD = "Kes131577@284666577";
+const input = prompt("🔐 Accès manager – Entrez le mot de passe");
+
+if (input !== PASSWORD) {
+  alert("❌ Mot de passe incorrect");
+  window.location.href = "index.html";
+}
+
+// 📦 Récupération des données sauvegardées
+const data = JSON.parse(localStorage.getItem("workHoursData")) || [];
+const table = document.getElementById("managerTable");
+
+let totalWork = 0;
+let totalVacation = 0;
+let totalHoliday = 0;
+
+data.forEach(worker => {
+  const row = document.createElement("tr");
+
+  row.innerHTML = `
+    <td>${worker.name}</td>
+    <td>${worker.workHours}</td>
+    <td>${worker.vacationHours}</td>
+    <td>${worker.holidayHours}</td>
+    <td class="total">${worker.workHours + worker.vacationHours + worker.holidayHours}</td>
+  `;
+
+  totalWork += worker.workHours;
+  totalVacation += worker.vacationHours;
+  totalHoliday += worker.holidayHours;
+
+  table.appendChild(row);
+});
+
+// Ligne TOTAL GLOBAL
+const totalRow = document.createElement("tr");
+totalRow.className = "total";
+
+totalRow.innerHTML = `
+  <td>TOTAL</td>
+  <td>${totalWork}</td>
+  <td>${totalVacation}</td>
+  <td>${totalHoliday}</td>
+  <td>${totalWork + totalVacation + totalHoliday}</td>
+`;
+
+table.appendChild(totalRow);
+</script>
 
 </body>
 </html>
-
