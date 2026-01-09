@@ -53,13 +53,27 @@ body {
   background: white;
   border-radius: 8px;
   padding: 10px;
-  min-height: 160px;
+  min-height: 180px;
   box-shadow: 0 2px 5px rgba(0,0,0,0.1);
 }
 
 .day-title {
   font-weight: bold;
   margin-bottom: 5px;
+}
+
+.line {
+  display: flex;
+  gap: 5px;
+  margin-bottom: 4px;
+}
+
+.client {
+  flex: 2;
+}
+
+.hour {
+  flex: 1;
 }
 
 .week-total {
@@ -74,6 +88,21 @@ body {
   margin-top: 20px;
   font-size: 18px;
   font-weight: bold;
+}
+
+.notes-box {
+  margin-top: 30px;
+  background: white;
+  padding: 15px;
+  border-radius: 8px;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+}
+
+.notes-box textarea {
+  width: 100%;
+  min-height: 120px;
+  padding: 10px;
+  font-size: 14px;
 }
 </style>
 </head>
@@ -107,28 +136,37 @@ body {
   Total mensuel : <span id="monthTotal">0</span> h
 </div>
 
+<div class="notes-box">
+  <h3>📝 Notes / Remarques</h3>
+  <textarea placeholder="Écrivez ici vos remarques ou explications…"></textarea>
+
+  <h3 style="margin-top:15px;">📎 Fichiers / Photos</h3>
+  <input type="file" multiple accept="image/*,.pdf,.doc,.docx">
+</div>
+
 <script>
 const calendar = document.getElementById("calendar");
 const daysInMonth = 31;
-
 let weekIndex = 1;
 
 for (let i = 1; i <= daysInMonth; i++) {
   const day = document.createElement("div");
   day.className = "day";
 
+  let lines = "";
+  for (let j = 0; j < 4; j++) {
+    lines += `
+      <div class="line">
+        <input type="text" class="client" placeholder="Client">
+        <input type="number" class="hour" placeholder="Heures">
+      </div>
+    `;
+  }
+
   day.innerHTML = `
     <div class="day-title">Jour ${i}</div>
-
-    <input type="number" class="hour" placeholder="Heures" style="width:100%; margin-bottom:4px;">
-    <input type="number" class="hour" placeholder="Heures" style="width:100%; margin-bottom:4px;">
-    <input type="number" class="hour" placeholder="Heures" style="width:100%; margin-bottom:4px;">
-    <input type="number" class="hour" placeholder="Heures" style="width:100%; margin-bottom:4px;">
-    <input type="number" class="hour" placeholder="Heures" style="width:100%;">
-
-    <div style="margin-top:6px; font-weight:bold;">
-      Total jour : <span class="day-total">0</span> h
-    </div>
+    ${lines}
+    <div><strong>Total jour :</strong> <span class="day-total">0</span> h</div>
   `;
 
   calendar.appendChild(day);
@@ -162,15 +200,13 @@ document.addEventListener("input", () => {
   let weekTotal = 0;
   let weekCounter = 0;
   let weekTotals = document.querySelectorAll(".week-total-value");
-  let weekIndex = 0;
+  let w = 0;
 
   document.querySelectorAll(".day").forEach(day => {
     let dayTotal = 0;
-
-    day.querySelectorAll(".hour").forEach(input => {
-      dayTotal += Number(input.value) || 0;
+    day.querySelectorAll(".hour").forEach(h => {
+      dayTotal += Number(h.value) || 0;
     });
-
     day.querySelector(".day-total").textContent = dayTotal;
 
     monthTotal += dayTotal;
@@ -178,15 +214,15 @@ document.addEventListener("input", () => {
     weekCounter++;
 
     if (weekCounter === 6) {
-      weekTotals[weekIndex].textContent = weekTotal;
-      weekIndex++;
-      weekCounter = 0;
+      weekTotals[w].textContent = weekTotal;
+      w++;
       weekTotal = 0;
+      weekCounter = 0;
     }
   });
 
-  if (weekCounter > 0 && weekTotals[weekIndex]) {
-    weekTotals[weekIndex].textContent = weekTotal;
+  if (weekCounter > 0 && weekTotals[w]) {
+    weekTotals[w].textContent = weekTotal;
   }
 
   document.getElementById("monthTotal").textContent = monthTotal;
