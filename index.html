@@ -86,13 +86,6 @@ button {
 .modal-content h3 {
   margin-top: 0;
 }
-<label><strong>Travailleur</strong></label>
-<select id="worker" style="width:100%; margin-bottom:10px;">
-  <option value="">-- Sélectionner --</option>
-  <option>Sonia</option>
-  <option>Maria</option>
-  <option>João</option>
-</select>
 
 .line {
   display: flex;
@@ -206,17 +199,8 @@ function closeModal() {
 }
 
 function saveDay() {
-  const worker = document.getElementById("worker").value;
-
-  if (!worker) {
-    alert("Veuillez sélectionner un travailleur");
-    return;
-  }
-
-  alert("Enregistré pour " + worker);
+  alert("Enregistré (local pour l'instant)");
   closeModal();
-}
-
 }
 
 function changeMonth(offset) {
@@ -229,6 +213,10 @@ renderCalendar();
 
 </body>
 </html>
+
+
+
+
 
 
 
