@@ -23,7 +23,7 @@ body {
 
 .name-box input {
   padding: 10px;
-  width: 300px;
+  width: 320px;
   font-size: 16px;
 }
 
@@ -53,13 +53,27 @@ body {
   background: white;
   border-radius: 8px;
   padding: 10px;
-  min-height: 140px;
+  min-height: 160px;
   box-shadow: 0 2px 5px rgba(0,0,0,0.1);
 }
 
 .day-title {
   font-weight: bold;
   margin-bottom: 5px;
+}
+
+.week-total {
+  grid-column: span 6;
+  background: #eaeaea;
+  padding: 10px;
+  border-radius: 6px;
+  font-weight: bold;
+}
+
+.month-total {
+  margin-top: 20px;
+  font-size: 18px;
+  font-weight: bold;
 }
 </style>
 </head>
@@ -73,7 +87,9 @@ body {
 
 <div class="name-box">
   <input type="text" id="employeeName" placeholder="Nom et Prénom (obligatoire)">
-  <p class="warning" id="nameWarning">Veuillez entrer votre nom et prénom pour continuer</p>
+  <p class="warning" id="nameWarning">
+    Veuillez entrer votre nom et prénom pour continuer
+  </p>
 </div>
 
 <div class="weekdays">
@@ -87,9 +103,15 @@ body {
 
 <div class="calendar" id="calendar"></div>
 
+<div class="month-total">
+  Total mensuel : <span id="monthTotal">0</span> h
+</div>
+
 <script>
 const calendar = document.getElementById("calendar");
 const daysInMonth = 31;
+
+let weekIndex = 1;
 
 for (let i = 1; i <= daysInMonth; i++) {
   const day = document.createElement("div");
@@ -97,14 +119,27 @@ for (let i = 1; i <= daysInMonth; i++) {
 
   day.innerHTML = `
     <div class="day-title">Jour ${i}</div>
-    <input type="text" placeholder="Heures" style="width:100%; margin-bottom:4px;">
-    <input type="text" placeholder="Heures" style="width:100%; margin-bottom:4px;">
-    <input type="text" placeholder="Heures" style="width:100%; margin-bottom:4px;">
-    <input type="text" placeholder="Heures" style="width:100%; margin-bottom:4px;">
-    <input type="text" placeholder="Heures" style="width:100%;">
+
+    <input type="number" class="hour" placeholder="Heures" style="width:100%; margin-bottom:4px;">
+    <input type="number" class="hour" placeholder="Heures" style="width:100%; margin-bottom:4px;">
+    <input type="number" class="hour" placeholder="Heures" style="width:100%; margin-bottom:4px;">
+    <input type="number" class="hour" placeholder="Heures" style="width:100%; margin-bottom:4px;">
+    <input type="number" class="hour" placeholder="Heures" style="width:100%;">
+
+    <div style="margin-top:6px; font-weight:bold;">
+      Total jour : <span class="day-total">0</span> h
+    </div>
   `;
 
   calendar.appendChild(day);
+
+  if (i % 6 === 0 || i === daysInMonth) {
+    const weekTotal = document.createElement("div");
+    weekTotal.className = "week-total";
+    weekTotal.innerHTML = `Total semaine ${weekIndex} : <span class="week-total-value">0</span> h`;
+    calendar.appendChild(weekTotal);
+    weekIndex++;
+  }
 }
 
 const nameInput = document.getElementById("employeeName");
@@ -121,10 +156,46 @@ nameInput.addEventListener("input", () => {
     warning.style.display = "block";
   }
 });
+
+document.addEventListener("input", () => {
+  let monthTotal = 0;
+  let weekTotal = 0;
+  let weekCounter = 0;
+  let weekTotals = document.querySelectorAll(".week-total-value");
+  let weekIndex = 0;
+
+  document.querySelectorAll(".day").forEach(day => {
+    let dayTotal = 0;
+
+    day.querySelectorAll(".hour").forEach(input => {
+      dayTotal += Number(input.value) || 0;
+    });
+
+    day.querySelector(".day-total").textContent = dayTotal;
+
+    monthTotal += dayTotal;
+    weekTotal += dayTotal;
+    weekCounter++;
+
+    if (weekCounter === 6) {
+      weekTotals[weekIndex].textContent = weekTotal;
+      weekIndex++;
+      weekCounter = 0;
+      weekTotal = 0;
+    }
+  });
+
+  if (weekCounter > 0 && weekTotals[weekIndex]) {
+    weekTotals[weekIndex].textContent = weekTotal;
+  }
+
+  document.getElementById("monthTotal").textContent = monthTotal;
+});
 </script>
 
 </body>
 </html>
+
 
 
 
