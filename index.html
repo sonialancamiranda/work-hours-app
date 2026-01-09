@@ -21,21 +21,15 @@ body {
   margin-bottom: 10px;
 }
 
-.name-box {
-  text-align: center;
-  margin-bottom: 20px;
-}
-
 input, select, textarea {
   width: 100%;
   padding: 4px;
   margin-bottom: 4px;
-  font-size: 13px;
 }
 
 .weekdays, .calendar {
   display: grid;
-  grid-template-columns: repeat(5, 1fr); /* Lundi → Vendredi */
+  grid-template-columns: repeat(5, 1fr);
   gap: 10px;
 }
 
@@ -47,14 +41,9 @@ input, select, textarea {
 
 .day {
   background: white;
-  border-radius: 8px;
   padding: 8px;
+  border-radius: 8px;
   box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-}
-
-.day-title {
-  font-weight: bold;
-  margin-bottom: 6px;
 }
 
 .total-day {
@@ -67,7 +56,6 @@ input, select, textarea {
   background: white;
   padding: 15px;
   border-radius: 8px;
-  font-weight: bold;
 }
 </style>
 </head>
@@ -75,103 +63,130 @@ input, select, textarea {
 <body>
 
 <div class="header">
-  <img src="logo-amasters-cleaning.jpg" alt="A Master’s Cleaning" class="logo">
+  <img src="logo-amasters-cleaning.jpg" class="logo">
   <h1>A Master’s Cleaning</h1>
   <p>Calendrier mensuel – Encodage des heures</p>
 </div>
 
-<div class="name-box">
-  <input type="text" placeholder="Nom et prénom (obligatoire)">
-</div>
+<input id="employeeName" placeholder="Nom et prénom (obligatoire)">
 
 <div class="weekdays">
-  <div>Lundi</div>
-  <div>Mardi</div>
-  <div>Mercredi</div>
-  <div>Jeudi</div>
-  <div>Vendredi</div>
+  <div>Lundi</div><div>Mardi</div><div>Mercredi</div>
+  <div>Jeudi</div><div>Vendredi</div>
 </div>
 
 <div class="calendar" id="calendar"></div>
 
 <div class="totals">
-  <p>🧹 Heures prestées : <span id="workTotal">0</span> h</p>
-  <p>🎉 Heures jour férié : <span id="holidayTotal">0</span> h</p>
-  <p>🏖️ Heures vacances : <span id="vacationTotal">0</span> h</p>
+  <p>Presté : <span id="workTotal">0</span> h</p>
+  <p>Vacances : <span id="vacationTotal">0</span> h</p>
+  <p>Férié : <span id="holidayTotal">0</span> h</p>
   <hr>
-  <p>📅 Total mensuel : <span id="monthlyTotal">0</span> h</p>
+  <p>Total mois : <span id="monthlyTotal">0</span> h</p>
 </div>
 
 <div class="totals">
-  <h3>📝 Notes / Remarques</h3>
-  <textarea rows="5" placeholder="Écrivez ici vos remarques ou explications..."></textarea>
+  <textarea id="notes" placeholder="Notes / remarques"></textarea>
   <input type="file">
 </div>
 
 <script>
-const calendar = document.getElementById("calendar");
 const daysInMonth = 31;
+const calendar = document.getElementById("calendar");
 
-function calculateTotals() {
-  let work = 0;
-  let holiday = 0;
-  let vacation = 0;
+function saveData() {
+  const data = {
+    name: employeeName.value,
+    days: [],
+    notes: notes.value
+  };
 
   document.querySelectorAll(".day").forEach(day => {
-    let dayTotal = 0;
-
-    day.querySelectorAll(".entry").forEach(entry => {
-      const hours = parseFloat(entry.querySelector(".hours").value) || 0;
-      const type = entry.querySelector(".type").value;
-
-      if (type === "work") work += hours;
-      if (type === "holiday") holiday += hours;
-      if (type === "vacation") vacation += hours;
-
-      dayTotal += hours;
+    const dayData = [];
+    day.querySelectorAll(".entry").forEach(e => {
+      dayData.push({
+        client: e.querySelector(".client").value,
+        hours: e.querySelector(".hours").value,
+        type: e.querySelector(".type").value
+      });
     });
-
-    day.querySelector(".total-day").innerText = "Total jour : " + dayTotal + " h";
+    data.days.push(dayData);
   });
 
-  document.getElementById("workTotal").innerText = work;
-  document.getElementById("holidayTotal").innerText = holiday;
-  document.getElementById("vacationTotal").innerText = vacation;
-  document.getElementById("monthlyTotal").innerText = work + holiday + vacation;
+  localStorage.setItem("workHoursData", JSON.stringify(data));
 }
 
-for (let i = 1; i <= daysInMonth; i++) {
-  const day = document.createElement("div");
-  day.className = "day";
+function loadData() {
+  const data = JSON.parse(localStorage.getItem("workHoursData"));
+  if (!data) return;
 
-  day.innerHTML = `
-    <div class="day-title">Jour ${i}</div>
+  employeeName.value = data.name || "";
+  notes.value = data.notes || "";
 
+  document.querySelectorAll(".day").forEach((day, i) => {
+    if (!data.days[i]) return;
+    day.querySelectorAll(".entry").forEach((e, j) => {
+      if (!data.days[i][j]) return;
+      e.querySelector(".client").value = data.days[i][j].client;
+      e.querySelector(".hours").value = data.days[i][j].hours;
+      e.querySelector(".type").value = data.days[i][j].type;
+    });
+  });
+
+  calculateTotals();
+}
+
+function calculateTotals() {
+  let work=0, vacation=0, holiday=0;
+
+  document.querySelectorAll(".entry").forEach(e => {
+    const h = parseFloat(e.querySelector(".hours").value) || 0;
+    const t = e.querySelector(".type").value;
+    if (t==="work") work+=h;
+    if (t==="vacation") vacation+=h;
+    if (t==="holiday") holiday+=h;
+  });
+
+  workTotal.innerText = work;
+  vacationTotal.innerText = vacation;
+  holidayTotal.innerText = holiday;
+  monthlyTotal.innerText = work+vacation+holiday;
+}
+
+for (let i=1;i<=daysInMonth;i++){
+  const d=document.createElement("div");
+  d.className="day";
+  d.innerHTML=`
+    <strong>Jour ${i}</strong>
     <div class="entry">
-      <input type="text" placeholder="Client">
-      <input type="number" class="hours" placeholder="Heures" oninput="calculateTotals()">
-      <select class="type" onchange="calculateTotals()">
+      <input class="client" placeholder="Client">
+      <input class="hours" type="number" placeholder="Heures">
+      <select class="type">
         <option value="work">Presté</option>
-        <option value="holiday">Jour férié</option>
         <option value="vacation">Vacances</option>
+        <option value="holiday">Férié</option>
       </select>
     </div>
-
     <div class="entry">
-      <input type="text" placeholder="Client">
-      <input type="number" class="hours" placeholder="Heures" oninput="calculateTotals()">
-      <select class="type" onchange="calculateTotals()">
+      <input class="client" placeholder="Client">
+      <input class="hours" type="number" placeholder="Heures">
+      <select class="type">
         <option value="work">Presté</option>
-        <option value="holiday">Jour férié</option>
         <option value="vacation">Vacances</option>
+        <option value="holiday">Férié</option>
       </select>
     </div>
-
-    <div class="total-day">Total jour : 0 h</div>
+    <div class="total-day"></div>
   `;
-
-  calendar.appendChild(day);
+  calendar.appendChild(d);
 }
+
+document.addEventListener("input", () => {
+  calculateTotals();
+  saveData();
+});
+
+loadData();
 </script>
 
 </body>
