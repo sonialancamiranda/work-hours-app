@@ -2,12 +2,12 @@
 <html lang="fr">
 <head>
 <meta charset="UTF-8">
-<title>Calendrier mensuel</title>
+<title>Work Hours</title>
 
 <style>
 body {
   font-family: Arial, sans-serif;
-  background: #f4f6fb;
+  background: #f7f7f7;
   padding: 20px;
 }
 
@@ -15,58 +15,54 @@ h1 {
   text-align: center;
 }
 
-.controls {
-  display: flex;
-  justify-content: center;
-  gap: 20px;
-  margin-bottom: 15px;
-}
-
-button {
-  padding: 6px 12px;
-  font-size: 16px;
-}
-
 .calendar {
   display: grid;
   grid-template-columns: repeat(6, 1fr);
   gap: 10px;
+  margin-top: 20px;
 }
 
-.header {
-  background: #dbe4ff;
-  padding: 10px;
-  text-align: center;
-  font-weight: bold;
-  border-radius: 6px;
-}
-
-.day, .empty {
+.day {
   background: white;
-  min-height: 100px;
-  padding: 8px;
   border-radius: 8px;
+  padding: 10px;
+  min-height: 120px;
   box-shadow: 0 2px 5px rgba(0,0,0,0.1);
 }
 
-.empty {
-  background: transparent;
-  box-shadow: none;
+.day-title {
+  font-weight: bold;
+  margin-bottom: 5px;
 }
 </style>
 </head>
 
 <body>
 
-<h1>📅 Calendrier mensuel</h1>
+<h1>📅 Calendrier mensuel – Heures de travail</h1>
 
-<div class="controls">
-  <button onclick="changeMonth(-1)">⬅️</button>
-  <strong id="monthLabel"></strong>
-  <button onclick="changeMonth(1)">➡️</button>
-</div>
+<div class="calendar" id="calendar"></div>
 
-<div
+<script>
+const calendar = document.getElementById("calendar");
+const daysInMonth = 31;
+
+for (let i = 1; i <= daysInMonth; i++) {
+  const day = document.createElement("div");
+  day.className = "day";
+
+  day.innerHTML = `
+    <div class="day-title">Jour ${i}</div>
+    <input type="text" placeholder="Heures" style="width:100%; margin-bottom:4px;">
+    <input type="text" placeholder="Heures">
+  `;
+
+  calendar.appendChild(day);
+}
+</script>
+
+</body>
+</html>
 
 
 
