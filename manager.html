@@ -5,119 +5,95 @@
 <meta charset="UTF-8">
 <title>Espace Manager – A Master’s Cleaning</title>
 
+<!-- Librairie Excel -->
+<script src="https://cdn.jsdelivr.net/npm/xlsx/dist/xlsx.full.min.js"></script>
+
 <style>
 body {
   font-family: Arial, sans-serif;
-  background: #f4f4f4;
-  padding: 30px;
+  background: #f7f7f7;
+  padding: 20px;
 }
 
-.card {
-  background: white;
+.container {
   max-width: 900px;
   margin: auto;
-  padding: 25px;
+  background: white;
+  padding: 20px;
   border-radius: 10px;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
 }
 
 h1 {
   text-align: center;
 }
 
-table {
-  width: 100%;
-  border-collapse: collapse;
+button {
+  padding: 10px 20px;
+  font-size: 16px;
+  cursor: pointer;
   margin-top: 20px;
 }
 
-th, td {
-  border: 1px solid #ccc;
-  padding: 10px;
-  text-align: center;
-}
-
-th {
-  background: #eee;
-}
-
-.total {
-  font-weight: bold;
-  background: #f9f9f9;
+.hidden {
+  display: none;
 }
 </style>
 </head>
 
 <body>
 
-<div class="card">
-  <h1>👩‍💼 Espace Manager</h1>
-  <p style="text-align:center;">Vue globale des heures mensuelles</p>
+<div class="container">
 
-  <table>
-    <thead>
-      <tr>
-        <th>Travailleur</th>
-        <th>Heures prestées</th>
-        <th>Vacances</th>
-        <th>Jours fériés</th>
-        <th>Total mensuel</th>
-      </tr>
-    </thead>
-    <tbody id="managerTable"></tbody>
-  </table>
+  <h1>🔐 Espace Manager</h1>
+
+  <!-- LOGIN -->
+  <div id="login">
+    <p>Mot de passe manager :</p>
+    <input type="password" id="password">
+    <br><br>
+    <button onclick="checkPassword()">Entrer</button>
+    <p id="error" style="color:red;"></p>
+  </div>
+
+  <!-- CONTENU MANAGER -->
+  <div id="managerContent" class="hidden">
+    <h2>A Master’s Cleaning</h2>
+    <p>Export des heures encodées</p>
+
+    <button onclick="exportExcel()">📊 Export Excel</button>
+  </div>
+
 </div>
 
 <script>
-// 🔐 Mot de passe manager
-const PASSWORD = "Kes131577@284666577";
-const input = prompt("🔐 Accès manager – Entrez le mot de passe");
+const MANAGER_PASSWORD = "Kes131577@284666577";
 
-if (input !== PASSWORD) {
-  alert("❌ Mot de passe incorrect");
-  window.location.href = "index.html";
+function checkPassword() {
+  const input = document.getElementById("password").value;
+  if (input === MANAGER_PASSWORD) {
+    document.getElementById("login").style.display = "none";
+    document.getElementById("managerContent").classList.remove("hidden");
+  } else {
+    document.getElementById("error").innerText = "Mot de passe incorrect";
+  }
 }
 
-// 📦 Récupération des données sauvegardées
-const data = JSON.parse(localStorage.getItem("workHoursData")) || [];
-const table = document.getElementById("managerTable");
+function exportExcel() {
+  const data = JSON.parse(localStorage.getItem("workHours")) || [];
 
-let totalWork = 0;
-let totalVacation = 0;
-let totalHoliday = 0;
+  if (data.length === 0) {
+    alert("Aucune donnée à exporter");
+    return;
+  }
 
-data.forEach(worker => {
-  const row = document.createElement("tr");
+  const worksheet = XLSX.utils.json_to_sheet(data);
+  const workbook = XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(workbook, worksheet, "Heures");
 
-  row.innerHTML = `
-    <td>${worker.name}</td>
-    <td>${worker.workHours}</td>
-    <td>${worker.vacationHours}</td>
-    <td>${worker.holidayHours}</td>
-    <td class="total">${worker.workHours + worker.vacationHours + worker.holidayHours}</td>
-  `;
-
-  totalWork += worker.workHours;
-  totalVacation += worker.vacationHours;
-  totalHoliday += worker.holidayHours;
-
-  table.appendChild(row);
-});
-
-// Ligne TOTAL GLOBAL
-const totalRow = document.createElement("tr");
-totalRow.className = "total";
-
-totalRow.innerHTML = `
-  <td>TOTAL</td>
-  <td>${totalWork}</td>
-  <td>${totalVacation}</td>
-  <td>${totalHoliday}</td>
-  <td>${totalWork + totalVacation + totalHoliday}</td>
-`;
-
-table.appendChild(totalRow);
+  XLSX.writeFile(workbook, "heures_travail.xlsx");
+}
 </script>
 
 </body>
 </html>
+
