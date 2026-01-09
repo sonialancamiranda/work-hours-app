@@ -108,7 +108,111 @@ button {
 
 <h1>📅 Work Hours</h1>
 
-<
+<div class="controls">
+  <button onclick="changeMonth(-1)">⬅️</button>
+  <strong id="monthLabel"></strong>
+  <button onclick="changeMonth(1)">➡️</button>
+</div>
+
+<div class="calendar" id="calendar">
+  <div class="header">Lundi</div>
+  <div class="header">Mardi</div>
+  <div class="header">Mercredi</div>
+  <div class="header">Jeudi</div>
+  <div class="header">Vendredi</div>
+  <div class="header">Samedi</div>
+</div>
+
+<!-- MODAL -->
+<div class="modal" id="modal">
+  <div class="modal-content">
+    <span class="close" onclick="closeModal()">❌</span>
+    <h3 id="modalDate"></h3>
+
+    <div id="lines"></div>
+
+    <button onclick="saveDay()">💾 Enregistrer</button>
+  </div>
+</div>
+
+<script>
+let currentDate = new Date();
+let selectedDate = null;
+
+const calendar = document.getElementById("calendar");
+const monthLabel = document.getElementById("monthLabel");
+const modal = document.getElementById("modal");
+const modalDate = document.getElementById("modalDate");
+const linesDiv = document.getElementById("lines");
+
+const months = [
+  "Janvier","Février","Mars","Avril","Mai","Juin",
+  "Juillet","Août","Septembre","Octobre","Novembre","Décembre"
+];
+
+function renderCalendar() {
+  calendar.querySelectorAll(".day, .empty").forEach(e => e.remove());
+
+  const year = currentDate.getFullYear();
+  const month = currentDate.getMonth();
+  monthLabel.textContent = months[month] + " " + year;
+
+  const firstDay = new Date(year, month, 1).getDay();
+  const startOffset = (firstDay === 0) ? 5 : firstDay - 1;
+  const daysInMonth = new Date(year, month + 1, 0).getDate();
+
+  for (let i = 0; i < startOffset; i++) {
+    const empty = document.createElement("div");
+    empty.className = "empty";
+    calendar.appendChild(empty);
+  }
+
+  for (let day = 1; day <= daysInMonth; day++) {
+    const date = new Date(year, month, day);
+    if (date.getDay() === 0) continue;
+
+    const cell = document.createElement("div");
+    cell.className = "day";
+    cell.innerHTML = `<strong>${day}</strong>`;
+    cell.onclick = () => openModal(date);
+    calendar.appendChild(cell);
+  }
+}
+
+function openModal(date) {
+  selectedDate = date;
+  modal.style.display = "flex";
+  modalDate.textContent = date.toLocaleDateString("fr-FR");
+
+  linesDiv.innerHTML = "";
+  for (let i = 0; i < 5; i++) {
+    linesDiv.innerHTML += `
+      <div class="line">
+        <input placeholder="Heures">
+        <input placeholder="Commentaire">
+      </div>`;
+  }
+}
+
+function closeModal() {
+  modal.style.display = "none";
+}
+
+function saveDay() {
+  alert("Enregistré (local pour l'instant)");
+  closeModal();
+}
+
+function changeMonth(offset) {
+  currentDate.setMonth(currentDate.getMonth() + offset);
+  renderCalendar();
+}
+
+renderCalendar();
+</script>
+
+</body>
+</html>
 
 
 
