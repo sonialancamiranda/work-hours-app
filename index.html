@@ -16,7 +16,7 @@ body {
   margin-bottom: 15px;
 }
 
-input, textarea {
+input, textarea, select {
   width: 100%;
   margin-bottom: 4px;
   padding: 6px;
@@ -84,13 +84,14 @@ input, textarea {
 <div class="calendar" id="calendar"></div>
 
 <div class="totals">
-  <p>🗓️ Total semaine : <span id="weeklyTotal">0</span> h</p>
-  <p>📅 Total mois : <span id="monthlyTotal">0</span> h</p>
+  <p>💼 Heures prestées : <span id="workedTotal">0</span> h</p>
+  <p>🏖️ Heures vacances : <span id="vacationTotal">0</span> h</p>
+  <p>🎉 Heures jours fériés : <span id="holidayTotal">0</span> h</p>
 
   <hr>
 
   <h3>📝 Notes / Remarques</h3>
-  <textarea placeholder="Écrivez ici vos remarques ou explications..." style="height:120px;"></textarea>
+  <textarea placeholder="Écrivez ici vos remarques..." style="height:120px;"></textarea>
 
   <h3>📎 Ajouter des fichiers / photos</h3>
   <input type="file" multiple>
@@ -101,19 +102,22 @@ const calendar = document.getElementById("calendar");
 const daysInMonth = 31;
 
 function calculateTotals() {
-  let monthlyTotal = 0;
+  let worked = 0;
+  let vacation = 0;
+  let holiday = 0;
 
-  document.querySelectorAll(".day").forEach(day => {
-    let dayTotal = 0;
-    day.querySelectorAll(".hours").forEach(input => {
-      dayTotal += parseFloat(input.value) || 0;
-    });
-    day.querySelector(".total-day").innerText = "Total jour : " + dayTotal + " h";
-    monthlyTotal += dayTotal;
+  document.querySelectorAll(".entry").forEach(entry => {
+    const hours = parseFloat(entry.querySelector(".hours").value) || 0;
+    const type = entry.querySelector(".type").value;
+
+    if (type === "work") worked += hours;
+    if (type === "vacation") vacation += hours;
+    if (type === "holiday") holiday += hours;
   });
 
-  document.getElementById("weeklyTotal").innerText = monthlyTotal; 
-  document.getElementById("monthlyTotal").innerText = monthlyTotal;
+  document.getElementById("workedTotal").innerText = worked;
+  document.getElementById("vacationTotal").innerText = vacation;
+  document.getElementById("holidayTotal").innerText = holiday;
 }
 
 for (let i = 1; i <= daysInMonth; i++) {
@@ -123,10 +127,17 @@ for (let i = 1; i <= daysInMonth; i++) {
   day.innerHTML = `
     <strong>Jour ${i}</strong>
     <input type="text" placeholder="Client">
-    <input type="number" class="hours" placeholder="Heures" oninput="calculateTotals()">
-    <input type="number" class="hours" placeholder="Heures" oninput="calculateTotals()">
-    <input type="number" class="hours" placeholder="Heures" oninput="calculateTotals()">
-    <div class="total-day">Total jour : 0 h</div>
+
+    <div class="entry">
+      <select class="type" onchange="calculateTotals()">
+        <option value="work">Travail</option>
+        <option value="vacation">Vacances</option>
+        <option value="holiday">Jour férié</option>
+      </select>
+      <input type="number" class="hours" placeholder="Heures" oninput="calculateTotals()">
+    </div>
+
+    <div class="total-day">Encodage journalier</div>
   `;
 
   calendar.appendChild(day);
