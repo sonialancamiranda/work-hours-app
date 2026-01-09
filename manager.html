@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<title>Manager – A Master’s Cleaning</title>
+
+<style>
+body {
+  font-family: Arial, sans-serif;
+  background: #f7f7f7;
+  padding: 40px;
+  text-align: center;
+}
+
+.box {
+  background: white;
+  padding: 30px;
+  border-radius: 10px;
+  max-width: 500px;
+  margin: auto;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+}
+</style>
+</head>
+
+<body>
+
+<script>
+const PASSWORD = "Kes131577@284666577";
+const entered = prompt("🔐 Accès manager – Entrez le mot de passe");
+
+if (entered !== PASSWORD) {
+  document.body.innerHTML = "<h2>⛔ Accès refusé</h2><p>Mot de passe incorrect</p>";
+}
+</script>
+
+<div class="box">
+  <h1>👩‍💼 Espace Manager</h1>
+  <p>Bienvenue sur l’espace manager</p>
+
+  <ul style="text-align:left;">
+    <li>✔️ Consultation des heures</li>
+    <li>✔️ Vérification des totaux</li>
+    <li>✔️ Gestion des travailleurs</li>
+  </ul>
+</div>
+
+</body>
+</html>
+
