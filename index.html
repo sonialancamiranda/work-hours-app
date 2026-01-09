@@ -13,7 +13,7 @@ body {
 
 .header {
   text-align: center;
-  margin-bottom: 20px;
+  margin-bottom: 15px;
 }
 
 .logo {
@@ -25,6 +25,7 @@ input, select, textarea {
   width: 100%;
   padding: 4px;
   margin-bottom: 4px;
+  font-size: 14px;
 }
 
 .weekdays, .calendar {
@@ -71,8 +72,11 @@ input, select, textarea {
 <input id="employeeName" placeholder="Nom et prénom (obligatoire)">
 
 <div class="weekdays">
-  <div>Lundi</div><div>Mardi</div><div>Mercredi</div>
-  <div>Jeudi</div><div>Vendredi</div>
+  <div>Lundi</div>
+  <div>Mardi</div>
+  <div>Mercredi</div>
+  <div>Jeudi</div>
+  <div>Vendredi</div>
 </div>
 
 <div class="calendar" id="calendar"></div>
@@ -80,9 +84,9 @@ input, select, textarea {
 <div class="totals">
   <p>Presté : <span id="workTotal">0</span> h</p>
   <p>Vacances : <span id="vacationTotal">0</span> h</p>
-  <p>Férié : <span id="holidayTotal">0</span> h</p>
+  <p>Jour férié : <span id="holidayTotal">0</span> h</p>
   <hr>
-  <p>Total mois : <span id="monthlyTotal">0</span> h</p>
+  <p><strong>Total mois : <span id="monthlyTotal">0</span> h</strong></p>
 </div>
 
 <div class="totals">
@@ -93,24 +97,40 @@ input, select, textarea {
 <script>
 const daysInMonth = 31;
 const calendar = document.getElementById("calendar");
+const employeeName = document.getElementById("employeeName");
+const notes = document.getElementById("notes");
+
+function calculateTotals() {
+  let work = 0, vacation = 0, holiday = 0;
+
+  document.querySelectorAll(".entry").forEach(e => {
+    const hours = parseFloat(e.querySelector(".hours").value) || 0;
+    const type = e.querySelector(".type").value;
+
+    if (type === "P") work += hours;
+    if (type === "V") vacation += hours;
+    if (type === "F") holiday += hours;
+  });
+
+  document.getElementById("workTotal").innerText = work;
+  document.getElementById("vacationTotal").innerText = vacation;
+  document.getElementById("holidayTotal").innerText = holiday;
+  document.getElementById("monthlyTotal").innerText = work + vacation + holiday;
+}
 
 function saveData() {
   const data = {
     name: employeeName.value,
-    days: [],
-    notes: notes.value
+    notes: notes.value,
+    entries: []
   };
 
-  document.querySelectorAll(".day").forEach(day => {
-    const dayData = [];
-    day.querySelectorAll(".entry").forEach(e => {
-      dayData.push({
-        client: e.querySelector(".client").value,
-        hours: e.querySelector(".hours").value,
-        type: e.querySelector(".type").value
-      });
+  document.querySelectorAll(".entry").forEach(e => {
+    data.entries.push({
+      client: e.querySelector(".client").value,
+      hours: e.querySelector(".hours").value,
+      type: e.querySelector(".type").value
     });
-    data.days.push(dayData);
   });
 
   localStorage.setItem("workHoursData", JSON.stringify(data));
@@ -123,62 +143,45 @@ function loadData() {
   employeeName.value = data.name || "";
   notes.value = data.notes || "";
 
-  document.querySelectorAll(".day").forEach((day, i) => {
-    if (!data.days[i]) return;
-    day.querySelectorAll(".entry").forEach((e, j) => {
-      if (!data.days[i][j]) return;
-      e.querySelector(".client").value = data.days[i][j].client;
-      e.querySelector(".hours").value = data.days[i][j].hours;
-      e.querySelector(".type").value = data.days[i][j].type;
-    });
+  document.querySelectorAll(".entry").forEach((e, i) => {
+    if (!data.entries[i]) return;
+    e.querySelector(".client").value = data.entries[i].client;
+    e.querySelector(".hours").value = data.entries[i].hours;
+    e.querySelector(".type").value = data.entries[i].type;
   });
 
   calculateTotals();
 }
 
-function calculateTotals() {
-  let work=0, vacation=0, holiday=0;
+for (let i = 1; i <= daysInMonth; i++) {
+  const day = document.createElement("div");
+  day.className = "day";
 
-  document.querySelectorAll(".entry").forEach(e => {
-    const h = parseFloat(e.querySelector(".hours").value) || 0;
-    const t = e.querySelector(".type").value;
-    if (t==="work") work+=h;
-    if (t==="vacation") vacation+=h;
-    if (t==="holiday") holiday+=h;
-  });
-
-  workTotal.innerText = work;
-  vacationTotal.innerText = vacation;
-  holidayTotal.innerText = holiday;
-  monthlyTotal.innerText = work+vacation+holiday;
-}
-
-for (let i=1;i<=daysInMonth;i++){
-  const d=document.createElement("div");
-  d.className="day";
-  d.innerHTML=`
+  day.innerHTML = `
     <strong>Jour ${i}</strong>
+
     <div class="entry">
       <input class="client" placeholder="Client">
       <input class="hours" type="number" placeholder="Heures">
       <select class="type">
-        <option value="work">Presté</option>
-        <option value="vacation">Vacances</option>
-        <option value="holiday">Férié</option>
+        <option value="P">Presté</option>
+        <option value="V">Vacances</option>
+        <option value="F">Jour férié</option>
       </select>
     </div>
+
     <div class="entry">
       <input class="client" placeholder="Client">
       <input class="hours" type="number" placeholder="Heures">
       <select class="type">
-        <option value="work">Presté</option>
-        <option value="vacation">Vacances</option>
-        <option value="holiday">Férié</option>
+        <option value="P">Presté</option>
+        <option value="V">Vacances</option>
+        <option value="F">Jour férié</option>
       </select>
     </div>
-    <div class="total-day"></div>
   `;
-  calendar.appendChild(d);
+
+  calendar.appendChild(day);
 }
 
 document.addEventListener("input", () => {
