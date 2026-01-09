@@ -19,7 +19,8 @@ body {
 input, textarea {
   width: 100%;
   margin-bottom: 4px;
-  padding: 4px;
+  padding: 6px;
+  box-sizing: border-box;
 }
 
 .weekdays, .calendar {
@@ -41,16 +42,22 @@ input, textarea {
   box-shadow: 0 2px 5px rgba(0,0,0,0.1);
 }
 
+.day strong {
+  display: block;
+  margin-bottom: 5px;
+}
+
 .total-day {
   font-weight: bold;
   margin-top: 5px;
 }
 
 .totals {
-  margin-top: 20px;
+  margin-top: 25px;
   background: white;
   padding: 15px;
   border-radius: 8px;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.1);
 }
 </style>
 </head>
@@ -79,6 +86,14 @@ input, textarea {
 <div class="totals">
   <p>🗓️ Total semaine : <span id="weeklyTotal">0</span> h</p>
   <p>📅 Total mois : <span id="monthlyTotal">0</span> h</p>
+
+  <hr>
+
+  <h3>📝 Notes / Remarques</h3>
+  <textarea placeholder="Écrivez ici vos remarques ou explications..." style="height:120px;"></textarea>
+
+  <h3>📎 Ajouter des fichiers / photos</h3>
+  <input type="file" multiple>
 </div>
 
 <script>
@@ -86,21 +101,19 @@ const calendar = document.getElementById("calendar");
 const daysInMonth = 31;
 
 function calculateTotals() {
-  let weekly = 0;
-  let monthly = 0;
+  let monthlyTotal = 0;
 
   document.querySelectorAll(".day").forEach(day => {
     let dayTotal = 0;
     day.querySelectorAll(".hours").forEach(input => {
       dayTotal += parseFloat(input.value) || 0;
     });
-    day.querySelector(".total-day").innerText = dayTotal + " h";
-    weekly += dayTotal;
-    monthly += dayTotal;
+    day.querySelector(".total-day").innerText = "Total jour : " + dayTotal + " h";
+    monthlyTotal += dayTotal;
   });
 
-  document.getElementById("weeklyTotal").innerText = weekly;
-  document.getElementById("monthlyTotal").innerText = monthly;
+  document.getElementById("weeklyTotal").innerText = monthlyTotal; 
+  document.getElementById("monthlyTotal").innerText = monthlyTotal;
 }
 
 for (let i = 1; i <= daysInMonth; i++) {
@@ -113,9 +126,7 @@ for (let i = 1; i <= daysInMonth; i++) {
     <input type="number" class="hours" placeholder="Heures" oninput="calculateTotals()">
     <input type="number" class="hours" placeholder="Heures" oninput="calculateTotals()">
     <input type="number" class="hours" placeholder="Heures" oninput="calculateTotals()">
-    <textarea placeholder="Notes"></textarea>
-    <input type="file">
-    <div class="total-day">0 h</div>
+    <div class="total-day">Total jour : 0 h</div>
   `;
 
   calendar.appendChild(day);
