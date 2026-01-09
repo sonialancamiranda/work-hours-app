@@ -2,7 +2,7 @@
 <html lang="fr">
 <head>
 <meta charset="UTF-8">
-<title>Calendrier mensuel</title>
+<title>Work Hours App</title>
 
 <style>
 body {
@@ -49,91 +49,67 @@ button {
   padding: 8px;
   border-radius: 8px;
   box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+  cursor: pointer;
 }
 
 .empty {
   background: transparent;
   box-shadow: none;
+  cursor: default;
 }
 
 .day strong {
   display: block;
   margin-bottom: 5px;
 }
+
+/* MODAL */
+.modal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0,0,0,0.5);
+  display: none;
+  justify-content: center;
+  align-items: center;
+}
+
+.modal-content {
+  background: white;
+  padding: 20px;
+  width: 420px;
+  border-radius: 10px;
+}
+
+.modal-content h3 {
+  margin-top: 0;
+}
+
+.line {
+  display: flex;
+  gap: 5px;
+  margin-bottom: 6px;
+}
+
+.line input {
+  flex: 1;
+}
+
+.close {
+  float: right;
+  cursor: pointer;
+}
 </style>
 </head>
 
 <body>
 
-<h1>📅 Calendrier mensuel</h1>
+<h1>📅 Work Hours</h1>
 
-<div class="controls">
-  <button onclick="changeMonth(-1)">⬅️</button>
-  <strong id="monthLabel"></strong>
-  <button onclick="changeMonth(1)">➡️</button>
-</div>
+<
 
-<div class="calendar" id="calendar">
-  <div class="header">Lundi</div>
-  <div class="header">Mardi</div>
-  <div class="header">Mercredi</div>
-  <div class="header">Jeudi</div>
-  <div class="header">Vendredi</div>
-  <div class="header">Samedi</div>
-</div>
-
-<script>
-let currentDate = new Date();
-
-const calendar = document.getElementById("calendar");
-const monthLabel = document.getElementById("monthLabel");
-
-const months = [
-  "Janvier","Février","Mars","Avril","Mai","Juin",
-  "Juillet","Août","Septembre","Octobre","Novembre","Décembre"
-];
-
-function renderCalendar() {
-  // Nettoyer les anciennes cases (garder les headers)
-  calendar.querySelectorAll(".day, .empty").forEach(e => e.remove());
-
-  const year = currentDate.getFullYear();
-  const month = currentDate.getMonth();
-  monthLabel.textContent = months[month] + " " + year;
-
-  const firstDay = new Date(year, month, 1).getDay(); // 0 = dimanche
-  const startOffset = (firstDay === 0) ? 5 : firstDay - 1; // lundi = 0
-  const daysInMonth = new Date(year, month + 1, 0).getDate();
-
-  // cases vides avant le 1er jour
-  for (let i = 0; i < startOffset; i++) {
-    const empty = document.createElement("div");
-    empty.className = "empty";
-    calendar.appendChild(empty);
-  }
-
-  // jours du mois
-  for (let day = 1; day <= daysInMonth; day++) {
-    const date = new Date(year, month, day);
-    if (date.getDay() === 0) continue; // dimanche ignoré
-
-    const cell = document.createElement("div");
-    cell.className = "day";
-    cell.innerHTML = `<strong>${day}</strong>`;
-    calendar.appendChild(cell);
-  }
-}
-
-function changeMonth(offset) {
-  currentDate.setMonth(currentDate.getMonth() + offset);
-  renderCalendar();
-}
-
-renderCalendar();
-</script>
-
-</body>
-</html>
 
 
 
