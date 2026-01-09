@@ -2,59 +2,65 @@
 <html lang="fr">
 <head>
   <meta charset="UTF-8">
-  <title>Calendrier de travail</title>
+  <title>Encodage des heures</title>
   <style>
     body {
       font-family: Arial, sans-serif;
-      padding: 20px;
       background: #f4f6f8;
+      padding: 20px;
     }
     h1 {
       text-align: center;
     }
     .calendar {
       display: grid;
-      grid-template-columns: repeat(7, 1fr);
+      grid-template-columns: repeat(6, 1fr);
       gap: 10px;
-      max-width: 900px;
+      max-width: 1000px;
       margin: auto;
     }
     .day {
       background: white;
-      border-radius: 8px;
+      border-radius: 10px;
       padding: 10px;
-      min-height: 100px;
-      cursor: pointer;
+      min-height: 120px;
       box-shadow: 0 2px 5px rgba(0,0,0,0.1);
     }
-    .day:hover {
-      background: #e9f0ff;
-    }
-    .number {
+    .day-header {
       font-weight: bold;
+      text-align: center;
+    }
+    .date {
+      font-size: 14px;
+      margin-top: 5px;
+    }
+    .header {
+      font-weight: bold;
+      text-align: center;
+      background: #dde6ff;
+      border-radius: 8px;
+      padding: 10px;
     }
   </style>
 </head>
 <body>
 
-<h1>📅 Calendrier mensuel</h1>
+<h1>📅 Encodage mensuel – Lundi à Samedi</h1>
 
 <div class="calendar">
-  <div class="day"><div class="number">1</div></div>
-  <div class="day"><div class="number">2</div></div>
-  <div class="day"><div class="number">3</div></div>
-  <div class="day"><div class="number">4</div></div>
-  <div class="day"><div class="number">5</div></div>
-  <div class="day"><div class="number">6</div></div>
-  <div class="day"><div class="number">7</div></div>
-  <div class="day"><div class="number">8</div></div>
-  <div class="day"><div class="number">9</div></div>
-  <div class="day"><div class="number">10</div></div>
-  <div class="day"><div class="number">11</div></div>
-  <div class="day"><div class="number">12</div></div>
-  <div class="day"><div class="number">13</div></div>
-  <div class="day"><div class="number">14</div></div>
-  <div class="day"><div class="number">15</div></div>
+  <div class="header">Lundi</div>
+  <div class="header">Mardi</div>
+  <div class="header">Mercredi</div>
+  <div class="header">Jeudi</div>
+  <div class="header">Vendredi</div>
+  <div class="header">Samedi</div>
+
+  <div class="day"><div class="date">1</div></div>
+  <div class="day"><div class="date">2</div></div>
+  <div class="day"><div class="date">3</div></div>
+  <div class="day"><div class="date">4</div></div>
+  <div class="day"><div class="date">5</div></div>
+  <div class="day"><div class="date">6</div></div>
 </div>
 
 </body>
