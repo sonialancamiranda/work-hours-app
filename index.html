@@ -2,7 +2,7 @@
 <html lang="fr">
 <head>
 <meta charset="UTF-8">
-<title>A Master’s Cleaning – Heures</title>
+<title>A Master’s Cleaning</title>
 
 <style>
 body {
@@ -11,25 +11,15 @@ body {
   padding: 20px;
 }
 
-.header {
+.header, .name-box {
   text-align: center;
   margin-bottom: 15px;
 }
 
-.name-box {
-  text-align: center;
-  margin-bottom: 20px;
-}
-
-.name-box input {
-  padding: 10px;
-  width: 300px;
-  font-size: 16px;
-}
-
-.warning {
-  color: red;
-  display: none;
+input, textarea {
+  width: 100%;
+  margin-bottom: 4px;
+  padding: 4px;
 }
 
 .weekdays, .calendar {
@@ -44,29 +34,11 @@ body {
   margin-bottom: 10px;
 }
 
-.calendar {
-  pointer-events: none;
-  opacity: 0.4;
-}
-
 .day {
   background: white;
   border-radius: 8px;
-  padding: 10px;
+  padding: 8px;
   box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-  font-size: 14px;
-}
-
-.day-title {
-  font-weight: bold;
-  margin-bottom: 5px;
-}
-
-input, textarea {
-  width: 100%;
-  margin-bottom: 5px;
-  padding: 5px;
-  font-size: 13px;
 }
 
 .total-day {
@@ -76,7 +48,9 @@ input, textarea {
 
 .totals {
   margin-top: 20px;
-  font-size: 18px;
+  background: white;
+  padding: 15px;
+  border-radius: 8px;
 }
 </style>
 </head>
@@ -89,8 +63,7 @@ input, textarea {
 </div>
 
 <div class="name-box">
-  <input type="text" id="employeeName" placeholder="Nom et Prénom (obligatoire)">
-  <p class="warning" id="nameWarning">Veuillez entrer votre nom et prénom</p>
+  <input type="text" id="employeeName" placeholder="Nom et prénom (obligatoire)">
 </div>
 
 <div class="weekdays">
@@ -104,8 +77,8 @@ input, textarea {
 <div class="calendar" id="calendar"></div>
 
 <div class="totals">
-  🗓️ Total semaine : <span id="weekTotal">0</span> h<br>
-  📅 Total mois : <span id="monthTotal">0</span> h
+  <p>🗓️ Total semaine : <span id="weeklyTotal">0</span> h</p>
+  <p>📅 Total mois : <span id="monthlyTotal">0</span> h</p>
 </div>
 
 <script>
@@ -113,19 +86,21 @@ const calendar = document.getElementById("calendar");
 const daysInMonth = 31;
 
 function calculateTotals() {
-  let monthTotal = 0;
+  let weekly = 0;
+  let monthly = 0;
 
   document.querySelectorAll(".day").forEach(day => {
     let dayTotal = 0;
     day.querySelectorAll(".hours").forEach(input => {
-      dayTotal += Number(input.value) || 0;
+      dayTotal += parseFloat(input.value) || 0;
     });
-    day.querySelector(".total-day").textContent = dayTotal + " h";
-    monthTotal += dayTotal;
+    day.querySelector(".total-day").innerText = dayTotal + " h";
+    weekly += dayTotal;
+    monthly += dayTotal;
   });
 
-  document.getElementById("monthTotal").textContent = monthTotal;
-  document.getElementById("weekTotal").textContent = monthTotal; // simple pour l’instant
+  document.getElementById("weeklyTotal").innerText = weekly;
+  document.getElementById("monthlyTotal").innerText = monthly;
 }
 
 for (let i = 1; i <= daysInMonth; i++) {
@@ -133,9 +108,11 @@ for (let i = 1; i <= daysInMonth; i++) {
   day.className = "day";
 
   day.innerHTML = `
-    <div class="day-title">Jour ${i}</div>
-    <input class="hours" type="number" placeholder="Heures" oninput="calculateTotals()">
+    <strong>Jour ${i}</strong>
     <input type="text" placeholder="Client">
+    <input type="number" class="hours" placeholder="Heures" oninput="calculateTotals()">
+    <input type="number" class="hours" placeholder="Heures" oninput="calculateTotals()">
+    <input type="number" class="hours" placeholder="Heures" oninput="calculateTotals()">
     <textarea placeholder="Notes"></textarea>
     <input type="file">
     <div class="total-day">0 h</div>
@@ -143,25 +120,11 @@ for (let i = 1; i <= daysInMonth; i++) {
 
   calendar.appendChild(day);
 }
-
-const nameInput = document.getElementById("employeeName");
-const warning = document.getElementById("nameWarning");
-
-nameInput.addEventListener("input", () => {
-  if (nameInput.value.trim()) {
-    calendar.style.pointerEvents = "auto";
-    calendar.style.opacity = "1";
-    warning.style.display = "none";
-  } else {
-    calendar.style.pointerEvents = "none";
-    calendar.style.opacity = "0.4";
-    warning.style.display = "block";
-  }
-});
 </script>
 
 </body>
 </html>
+
 
 
 
