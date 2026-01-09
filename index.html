@@ -13,13 +13,23 @@ body {
 
 .header {
   text-align: center;
+  margin-bottom: 10px;
+}
+
+.name-box {
+  text-align: center;
   margin-bottom: 20px;
 }
 
-.calendar {
-  display: grid;
-  grid-template-columns: repeat(6, 1fr); /* Lundi → Samedi */
-  gap: 10px;
+.name-box input {
+  padding: 10px;
+  width: 300px;
+  font-size: 16px;
+}
+
+.warning {
+  color: red;
+  display: none;
 }
 
 .weekdays {
@@ -31,11 +41,19 @@ body {
   margin-bottom: 10px;
 }
 
+.calendar {
+  display: grid;
+  grid-template-columns: repeat(6, 1fr);
+  gap: 10px;
+  pointer-events: none;
+  opacity: 0.4;
+}
+
 .day {
   background: white;
   border-radius: 8px;
   padding: 10px;
-  min-height: 130px;
+  min-height: 140px;
   box-shadow: 0 2px 5px rgba(0,0,0,0.1);
 }
 
@@ -51,6 +69,11 @@ body {
 <div class="header">
   <h1>A Master’s Cleaning</h1>
   <p>Calendrier mensuel – Encodage des heures</p>
+</div>
+
+<div class="name-box">
+  <input type="text" id="employeeName" placeholder="Nom et Prénom (obligatoire)">
+  <p class="warning" id="nameWarning">Veuillez entrer votre nom et prénom pour continuer</p>
 </div>
 
 <div class="weekdays">
@@ -83,10 +106,26 @@ for (let i = 1; i <= daysInMonth; i++) {
 
   calendar.appendChild(day);
 }
+
+const nameInput = document.getElementById("employeeName");
+const warning = document.getElementById("nameWarning");
+
+nameInput.addEventListener("input", () => {
+  if (nameInput.value.trim() !== "") {
+    calendar.style.pointerEvents = "auto";
+    calendar.style.opacity = "1";
+    warning.style.display = "none";
+  } else {
+    calendar.style.pointerEvents = "none";
+    calendar.style.opacity = "0.4";
+    warning.style.display = "block";
+  }
+});
 </script>
 
 </body>
 </html>
+
 
 
 
