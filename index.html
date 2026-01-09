@@ -67,6 +67,48 @@
   <div class="day"><div class="date">5</div></div>
   <div class="day"><div class="date">6</div></div>
 </div>
+  <!-- Formulaire caché -->
+<div id="formPopup" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.4);">
+  <div style="background:white; max-width:400px; margin:100px auto; padding:20px; border-radius:10px;">
+    <h3>Encodage – Jour <span id="selectedDay"></span></h3>
+
+    <label>Nom du travailleur</label>
+    <input type="text" id="worker" style="width:100%; margin-bottom:10px;">
+
+    <label>Heures travaillées</label>
+    <input type="number" id="hours" style="width:100%; margin-bottom:10px;">
+
+    <label>Commentaire</label>
+    <textarea id="comment" style="width:100%;"></textarea>
+
+    <br><br>
+    <button onclick="sendData()">Envoyer</button>
+    <button onclick="closeForm()">Annuler</button>
+  </div>
+</div>
+
+<script>
+  const days = document.querySelectorAll('.day');
+  const popup = document.getElementById('formPopup');
+  const selectedDay = document.getElementById('selectedDay');
+
+  days.forEach(day => {
+    day.addEventListener('click', () => {
+      selectedDay.textContent = day.innerText;
+      popup.style.display = 'block';
+    });
+  });
+
+  function closeForm() {
+    popup.style.display = 'none';
+  }
+
+  function sendData() {
+    alert("Encodage envoyé (prochaine étape : email)");
+    closeForm();
+  }
+</script>
+
 
 </body>
 </html>
