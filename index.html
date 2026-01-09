@@ -2,7 +2,7 @@
 <html lang="fr">
 <head>
   <meta charset="UTF-8">
-  <title>Encodage des heures</title>
+  <title>Heures de travail</title>
   <style>
     body {
       font-family: Arial, sans-serif;
@@ -12,40 +12,45 @@
     h1 {
       text-align: center;
     }
+
     .calendar {
       display: grid;
       grid-template-columns: repeat(6, 1fr);
       gap: 10px;
-      max-width: 1000px;
+      max-width: 1100px;
       margin: auto;
     }
+
+    .header {
+      text-align: center;
+      font-weight: bold;
+      padding: 10px;
+      background: #dbe4ff;
+      border-radius: 8px;
+    }
+
     .day {
       background: white;
       border-radius: 10px;
       padding: 10px;
-      min-height: 120px;
+      min-height: 140px;
       box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+      cursor: pointer;
     }
-    .day-header {
-      font-weight: bold;
-      text-align: center;
+
+    .day:hover {
+      background: #eef3ff;
     }
+
     .date {
-      font-size: 14px;
-      margin-top: 5px;
-    }
-    .header {
       font-weight: bold;
-      text-align: center;
-      background: #dde6ff;
-      border-radius: 8px;
-      padding: 10px;
+      margin-bottom: 10px;
     }
   </style>
 </head>
 <body>
 
-<h1>📅 Encodage mensuel – Lundi à Samedi</h1>
+<h1>📅 Calendrier mensuel – Encodage des heures</h1>
 
 <div class="calendar">
   <div class="header">Lundi</div>
@@ -65,3 +70,4 @@
 
 </body>
 </html>
+
