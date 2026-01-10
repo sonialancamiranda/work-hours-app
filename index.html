@@ -1,126 +1,106 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-<meta charset="UTF-8">
-<title>A Master’s Cleaning – Encodage</title>
-
-<style>
-body {
-  font-family: Arial, sans-serif;
-  background: #f4f4f4;
-  padding: 20px;
-}
-
-h1 {
-  text-align: center;
-}
-
-input, select, textarea, button {
-  width: 100%;
-  margin-bottom: 6px;
-  padding: 6px;
-}
-
-.day {
-  background: white;
-  padding: 10px;
-  border-radius: 8px;
-  margin-bottom: 10px;
-}
-
-.total {
-  font-weight: bold;
-  margin-top: 20px;
-  background: white;
-  padding: 10px;
-  border-radius: 8px;
-}
-
-button {
-  background: #2e7d32;
-  color: white;
-  border: none;
-  cursor: pointer;
-}
-</style>
+  <meta charset="UTF-8" />
+  <title>Encodage des heures – A Master’s Cleaning</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #f4f6f8;
+      padding: 20px;
+    }
+    h1 {
+      text-align: center;
+    }
+    label {
+      font-weight: bold;
+      margin-top: 10px;
+      display: block;
+    }
+    input, select, textarea, button {
+      width: 100%;
+      padding: 10px;
+      margin-top: 5px;
+      font-size: 16px;
+    }
+    button {
+      margin-top: 15px;
+      background: #2c7be5;
+      color: white;
+      border: none;
+      border-radius: 5px;
+    }
+    button:active {
+      opacity: 0.8;
+    }
+  </style>
 </head>
-
 <body>
 
-<h1>A Master’s Cleaning</h1>
+<h1>Encodage des heures</h1>
 
-<input id="employee" placeholder="Nom et prénom" required>
+<label>Nom du travailleur</label>
+<input id="name" placeholder="Ex : Maria" />
 
-<div id="days"></div>
+<label>Jour</label>
+<input id="day" type="date" />
 
-<div class="total">
-  Presté : <span id="tWork">0</span> h<br>
-  Vacances : <span id="tVac">0</span> h<br>
-  Férié : <span id="tHol">0</span> h<br>
-  <hr>
-  Total : <span id="tAll">0</span> h
-</div>
+<label>Client</label>
+<input id="client" placeholder="Nom du client" />
 
-<textarea id="notes" placeholder="Notes / remarques"></textarea>
+<label>Heures</label>
+<input id="hours" type="number" step="0.5" />
 
-<button onclick="sendData()">ENVOYER</button>
+<label>Type</label>
+<select id="type">
+  <option value="Presté">Presté</option>
+  <option value="Vacances">Vacances</option>
+  <option value="Jour férié">Jour férié</option>
+</select>
+
+<label>Remarques</label>
+<textarea id="notes" placeholder="Optionnel"></textarea>
+
+<button onclick="sendData()">Envoyer</button>
 
 <script>
 const API_URL = "https://script.google.com/macros/s/AKfycbzXEeV5T-JZAyickzCulHgA-AsLIhbjDHwS_NvfRzcEy2PsDwshWd92KWUPSkYjGU0veQ/exec";
-const daysDiv = document.getElementById("days");
 
-for (let i = 1; i <= 31; i++) {
-  daysDiv.innerHTML += `
-    <div class="day">
-      <strong>Jour ${i}</strong>
-      <input placeholder="Client">
-      <input type="number" placeholder="Heures" oninput="calc()">
-      <select onchange="calc()">
-        <option value="work">Presté</option>
-        <option value="vacation">Vacances</option>
-        <option value="holiday">Férié</option>
-      </select>
-    </div>`;
-}
+// Restaurer les données
+["name","day","client","hours","type","notes"].forEach(id => {
+  if (localStorage.getItem(id)) {
+    document.getElementById(id).value = localStorage.getItem(id);
+  }
+});
 
-function calc() {
-  let w=0,v=0,h=0;
-  document.querySelectorAll(".day").forEach(d=>{
-    const hrs=parseFloat(d.children[2].value)||0;
-    const t=d.children[3].value;
-    if(t==="work") w+=hrs;
-    if(t==="vacation") v+=hrs;
-    if(t==="holiday") h+=hrs;
+// Sauvegarde automatique
+document.querySelectorAll("input, select, textarea").forEach(el => {
+  el.addEventListener("change", () => {
+    localStorage.setItem(el.id, el.value);
   });
-  tWork.innerText=w;
-  tVac.innerText=v;
-  tHol.innerText=h;
-  tAll.innerText=w+v+h;
-}
+});
 
 function sendData() {
-  const payload = {
-    employee: employee.value,
-    notes: notes.value,
-    entries: []
+  const data = {
+    name: name.value,
+    day: day.value,
+    client: client.value,
+    hours: Number(hours.value || 0),
+    type: type.value,
+    notes: notes.value
   };
-
-  document.querySelectorAll(".day").forEach((d,i)=>{
-    payload.entries.push({
-      day: i+1,
-      client: d.children[1].value,
-      hours: d.children[2].value,
-      type: d.children[3].value
-    });
-  });
 
   fetch(API_URL, {
     method: "POST",
-    body: JSON.stringify(payload)
+    body: JSON.stringify(data)
   })
-  .then(r=>r.text())
-  .then(()=>alert("Encodage envoyé ✅"))
-  .catch(()=>alert("Erreur ❌"));
+  .then(() => {
+    alert("Encodage envoyé ✅");
+  })
+  .catch(() => {
+    alert("Erreur d’envoi ❌");
+  });
 }
 </script>
 
