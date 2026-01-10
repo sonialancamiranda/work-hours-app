@@ -24,7 +24,7 @@ body {
 input, select, textarea {
   width: 100%;
   padding: 5px;
-  margin-bottom: 4px;
+  margin-bottom: 5px;
 }
 
 .weekdays, .calendar {
@@ -46,6 +46,12 @@ input, select, textarea {
   box-shadow: 0 2px 5px rgba(0,0,0,0.1);
 }
 
+.total-day {
+  font-weight: bold;
+  margin-top: 5px;
+  font-size: 14px;
+}
+
 .totals {
   margin-top: 20px;
   background: white;
@@ -60,7 +66,7 @@ input, select, textarea {
 <div class="header">
   <img src="LOGO A MASTER'S modifie.jpg" class="logo">
   <h1>A Master’s Cleaning</h1>
-  <p>Encodage mensuel des heures</p>
+  <p>Calendrier mensuel – Encodage des heures</p>
 </div>
 
 <input id="employeeName" placeholder="Nom et prénom (obligatoire)">
@@ -76,62 +82,85 @@ input, select, textarea {
 <div class="calendar" id="calendar"></div>
 
 <div class="totals">
-  <p>Presté : <span id="workTotal">0</span> h</p>
-  <p>Vacances : <span id="vacationTotal">0</span> h</p>
-  <p>Férié : <span id="holidayTotal">0</span> h</p>
+  <p>🧹 Presté : <span id="workTotal">0</span> h</p>
+  <p>🌴 Vacances : <span id="vacationTotal">0</span> h</p>
+  <p>🎉 Férié : <span id="holidayTotal">0</span> h</p>
   <hr>
   <p><strong>Total mois : <span id="monthlyTotal">0</span> h</strong></p>
 </div>
 
 <script>
-const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbyZnrl2f1dalJiimPiwVa-nWockfOowFk_z4P2X8ggBVaRyBLCrssbbdskLPAQ28E0S/exec";
-
 const calendar = document.getElementById("calendar");
 const daysInMonth = 31;
 
-function envoyerVersGoogle(data) {
-  fetch(SCRIPT_URL, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(data)
-  });
-}
-
-function calculerEtEnvoyer() {
+function calculateTotals() {
   let work = 0, vacation = 0, holiday = 0;
-  const nom = document.getElementById("employeeName").value.trim();
-  if (!nom) return;
 
   document.querySelectorAll(".entry").forEach(e => {
     const h = parseFloat(e.querySelector(".hours").value) || 0;
     const t = e.querySelector(".type").value;
-    const client = e.querySelector(".client").value;
 
     if (t === "work") work += h;
     if (t === "vacation") vacation += h;
     if (t === "holiday") holiday += h;
-
-    if (h > 0) {
-      envoyerVersGoogle({
-        nom: nom,
-        client: client,
-        heures: h,
-        type: t
-      });
-    }
   });
 
-  workTotal.textContent = work;
-  vacationTotal.textContent = vacation;
-  holidayTotal.textContent = holiday;
-  monthlyTotal.textContent = work + vacation + holiday;
+  workTotal.innerText = work;
+  vacationTotal.innerText = vacation;
+  holidayTotal.innerText = holiday;
+  monthlyTotal.innerText = work + vacation + holiday;
+}
+
+function saveData() {
+  const data = {
+    name: employeeName.value,
+    entries: []
+  };
+
+  document.querySelectorAll(".entry").forEach(e => {
+    data.entries.push({
+      client: e.querySelector(".client").value,
+      hours: e.querySelector(".hours").value,
+      type: e.querySelector(".type").value
+    });
+  });
+
+  localStorage.setItem("amc_calendar", JSON.stringify(data));
+}
+
+function loadData() {
+  const data = JSON.parse(localStorage.getItem("amc_calendar"));
+  if (!data) return;
+
+  employeeName.value = data.name || "";
+
+  document.querySelectorAll(".entry").forEach((e, i) => {
+    if (!data.entries[i]) return;
+    e.querySelector(".client").value = data.entries[i].client;
+    e.querySelector(".hours").value = data.entries[i].hours;
+    e.querySelector(".type").value = data.entries[i].type;
+  });
+
+  calculateTotals();
 }
 
 for (let i = 1; i <= daysInMonth; i++) {
-  const d = document.createElement("div");
-  d.className = "day";
-  d.innerHTML = `
+  const day = document.createElement("div");
+  day.className = "day";
+
+  day.innerHTML = `
     <strong>Jour ${i}</strong>
+
+    <div class="entry">
+      <input class="client" placeholder="Client">
+      <input class="hours" type="number" placeholder="Heures">
+      <select class="type">
+        <option value="work">Presté</option>
+        <option value="vacation">Vacances</option>
+        <option value="holiday">Férié</option>
+      </select>
+    </div>
+
     <div class="entry">
       <input class="client" placeholder="Client">
       <input class="hours" type="number" placeholder="Heures">
@@ -142,10 +171,16 @@ for (let i = 1; i <= daysInMonth; i++) {
       </select>
     </div>
   `;
-  calendar.appendChild(d);
+
+  calendar.appendChild(day);
 }
 
-document.addEventListener("change", calculerEtEnvoyer);
+document.addEventListener("input", () => {
+  calculateTotals();
+  saveData();
+});
+
+loadData();
 </script>
 
 </body>
