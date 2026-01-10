@@ -2,142 +2,50 @@
 <html lang="fr">
 <head>
 <meta charset="UTF-8">
-<title>Espace Manager – A Master’s Cleaning</title>
+<title>Manager – A Master’s Cleaning</title>
 
 <style>
-body {
-  font-family: Arial, sans-serif;
-  background: #f5f5f5;
-  padding: 30px;
-}
-
-.container {
-  max-width: 900px;
-  margin: auto;
-  background: white;
-  padding: 25px;
-  border-radius: 10px;
-  box-shadow: 0 4px 10px rgba(0,0,0,0.1);
-}
-
-h1 {
-  text-align: center;
-}
-
-table {
-  width: 100%;
-  border-collapse: collapse;
-  margin-top: 20px;
-}
-
-th, td {
-  border: 1px solid #ccc;
-  padding: 8px;
-  text-align: center;
-}
-
-th {
-  background: #f0f0f0;
-}
-
-button {
-  margin-top: 20px;
-  padding: 10px 15px;
-  cursor: pointer;
-}
+body { font-family:Arial; background:#f4f4f4; padding:20px; }
+h1 { text-align:center; }
+table { width:100%; border-collapse:collapse; background:white; }
+th,td { border:1px solid #ccc; padding:6px; text-align:center; }
+th { background:#000; color:white; }
 </style>
 </head>
 
 <body>
 
-<div class="container">
-  <h1>🔐 Espace Manager</h1>
-  <p>Vue globale des heures encodées</p>
+<h1>📊 Encodages travailleurs</h1>
 
-  <table>
-    <thead>
-      <tr>
-        <th>Travailleur</th>
-        <th>Heures prestées</th>
-        <th>Vacances</th>
-        <th>Jours fériés</th>
-        <th>Total</th>
-      </tr>
-    </thead>
-    <tbody id="dataTable">
-      <tr>
-        <td colspan="5">Aucune donnée trouvée</td>
-      </tr>
-    </tbody>
-  </table>
-
-  <button onclick="exportExcel()">📤 Export Excel</button>
-</div>
+<table>
+<thead>
+<tr>
+<th>Nom</th><th>Jour</th><th>Client</th><th>Heures</th><th>Type</th>
+</tr>
+</thead>
+<tbody id="data"></tbody>
+</table>
 
 <script>
-function loadData() {
-  const data = JSON.parse(localStorage.getItem("workHoursData")) || [];
-  const table = document.getElementById("dataTable");
-  table.innerHTML = "";
-
-  if (data.length === 0) {
-    table.innerHTML = "<tr><td colspan='5'>Aucune donnée trouvée</td></tr>";
-    return;
-  }
-
-  let totalWork = 0, totalVac = 0, totalFer = 0;
-
-  data.forEach(item => {
-    totalWork += item.work;
-    totalVac += item.vacation;
-    totalFer += item.holiday;
-
-    table.innerHTML += `
+fetch("https://script.google.com/macros/s/AKfycbyZnrl2f1dalJiimPiwVa-nWockfOowFk_z4P2X8ggBVaRyBLCrssbbdskLPAQ28E0S/exec")
+.then(r=>r.json())
+.then(rows=>{
+  const t=document.getElementById("data");
+  rows.forEach(r=>{
+    t.innerHTML+=`
       <tr>
-        <td>${item.name}</td>
-        <td>${item.work}</td>
-        <td>${item.vacation}</td>
-        <td>${item.holiday}</td>
-        <td>${item.work + item.vacation + item.holiday}</td>
-      </tr>
-    `;
+        <td>${r.name}</td>
+        <td>${r.day}</td>
+        <td>${r.client}</td>
+        <td>${r.hours}</td>
+        <td>${r.type}</td>
+      </tr>`;
   });
-
-  table.innerHTML += `
-    <tr style="font-weight:bold;background:#eee">
-      <td>TOTAL</td>
-      <td>${totalWork}</td>
-      <td>${totalVac}</td>
-      <td>${totalFer}</td>
-      <td>${totalWork + totalVac + totalFer}</td>
-    </tr>
-  `;
-}
-
-function exportExcel() {
-  const data = JSON.parse(localStorage.getItem("workHoursData")) || [];
-  if (data.length === 0) {
-    alert("Aucune donnée à exporter");
-    return;
-  }
-
-  let csv = "Travailleur,Heures prestées,Vacances,Jours fériés,Total\n";
-  data.forEach(d => {
-    csv += `${d.name},${d.work},${d.vacation},${d.holiday},${d.work+d.vacation+d.holiday}\n`;
-  });
-
-  const blob = new Blob([csv], { type: "text/csv" });
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement("a");
-  a.href = url;
-  a.download = "heures_mensuelles.csv";
-  a.click();
-}
-
-loadData();
+});
 </script>
 
 </body>
 </html>
+
 
 
