@@ -7,177 +7,126 @@
 <style>
 body {
   font-family: Arial, sans-serif;
-  background: #f7f7f7;
+  background: #f4f4f4;
   padding: 20px;
 }
 
-.header {
+h1 {
   text-align: center;
-  margin-bottom: 20px;
 }
 
-.logo {
-  max-width: 160px;
-  margin-bottom: 10px;
-}
-
-input, select, textarea {
+input, select, textarea, button {
   width: 100%;
-  padding: 5px;
-  margin-bottom: 4px;
-}
-
-.weekdays, .calendar {
-  display: grid;
-  grid-template-columns: repeat(5, 1fr); /* Lundi → Vendredi */
-  gap: 10px;
-}
-
-.weekdays {
-  font-weight: bold;
-  text-align: center;
-  margin-bottom: 10px;
+  margin-bottom: 6px;
+  padding: 6px;
 }
 
 .day {
   background: white;
-  padding: 8px;
+  padding: 10px;
   border-radius: 8px;
-  box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+  margin-bottom: 10px;
 }
 
-.total-day {
+.total {
   font-weight: bold;
-  margin-top: 5px;
-  font-size: 14px;
-}
-
-.totals {
   margin-top: 20px;
   background: white;
-  padding: 15px;
+  padding: 10px;
   border-radius: 8px;
+}
+
+button {
+  background: #2e7d32;
+  color: white;
+  border: none;
+  cursor: pointer;
 }
 </style>
 </head>
 
 <body>
 
-<div class="header">
-  <img src="logo-amasters-cleaning.jpg" class="logo">
-  <h1>A Master’s Cleaning</h1>
-  <p>Calendrier mensuel – Encodage des heures</p>
-</div>
+<h1>A Master’s Cleaning</h1>
 
-<input id="employeeName" placeholder="Nom et prénom (obligatoire)">
+<input id="employee" placeholder="Nom et prénom" required>
 
-<div class="weekdays">
-  <div>Lundi</div>
-  <div>Mardi</div>
-  <div>Mercredi</div>
-  <div>Jeudi</div>
-  <div>Vendredi</div>
-</div>
+<div id="days"></div>
 
-<div class="calendar" id="calendar"></div>
-
-<div class="totals">
-  <p>🧹 Presté : <span id="workTotal">0</span> h</p>
-  <p>🏖️ Vacances : <span id="vacationTotal">0</span> h</p>
-  <p>🎉 Férié : <span id="holidayTotal">0</span> h</p>
+<div class="total">
+  Presté : <span id="tWork">0</span> h<br>
+  Vacances : <span id="tVac">0</span> h<br>
+  Férié : <span id="tHol">0</span> h<br>
   <hr>
-  <p><strong>Total mois : <span id="monthlyTotal">0</span> h</strong></p>
+  Total : <span id="tAll">0</span> h
 </div>
 
-<textarea id="notes" placeholder="Notes générales (optionnel)"></textarea>
+<textarea id="notes" placeholder="Notes / remarques"></textarea>
+
+<button onclick="sendData()">ENVOYER</button>
 
 <script>
-const API_URL = "https://script.google.com/macros/s/AKfycbztDSgsG_-IzvsoJs1WZinutxPePCoovRW6QL-VvNhyEsYDuwOVvDgHMCF5nx9reR5IpA/exec";
-const daysInMonth = 31;
-const calendar = document.getElementById("calendar");
+const API_URL = "https://script.google.com/macros/s/AKfycbzXEeV5T-JZAyickzCulHgA-AsLIhbjDHwS_NvfRzcEy2PsDwshWd92KWUPSkYjGU0veQ/exec";
+const daysDiv = document.getElementById("days");
 
-function calculateTotals() {
-  let work = 0, vacation = 0, holiday = 0;
-
-  document.querySelectorAll(".entry").forEach(e => {
-    const h = parseFloat(e.querySelector(".hours").value) || 0;
-    const t = e.querySelector(".type").value;
-    if (t === "work") work += h;
-    if (t === "vacation") vacation += h;
-    if (t === "holiday") holiday += h;
-  });
-
-  workTotal.innerText = work;
-  vacationTotal.innerText = vacation;
-  holidayTotal.innerText = holiday;
-  monthlyTotal.innerText = work + vacation + holiday;
+for (let i = 1; i <= 31; i++) {
+  daysDiv.innerHTML += `
+    <div class="day">
+      <strong>Jour ${i}</strong>
+      <input placeholder="Client">
+      <input type="number" placeholder="Heures" oninput="calc()">
+      <select onchange="calc()">
+        <option value="work">Presté</option>
+        <option value="vacation">Vacances</option>
+        <option value="holiday">Férié</option>
+      </select>
+    </div>`;
 }
 
-async function sendData() {
-  if (!employeeName.value.trim()) return;
+function calc() {
+  let w=0,v=0,h=0;
+  document.querySelectorAll(".day").forEach(d=>{
+    const hrs=parseFloat(d.children[2].value)||0;
+    const t=d.children[3].value;
+    if(t==="work") w+=hrs;
+    if(t==="vacation") v+=hrs;
+    if(t==="holiday") h+=hrs;
+  });
+  tWork.innerText=w;
+  tVac.innerText=v;
+  tHol.innerText=h;
+  tAll.innerText=w+v+h;
+}
 
-  const data = {
-    name: employeeName.value,
+function sendData() {
+  const payload = {
+    employee: employee.value,
     notes: notes.value,
     entries: []
   };
 
-  document.querySelectorAll(".day").forEach((day, dIndex) => {
-    day.querySelectorAll(".entry").forEach(e => {
-      const hours = e.querySelector(".hours").value;
-      if (hours) {
-        data.entries.push({
-          day: dIndex + 1,
-          client: e.querySelector(".client").value,
-          hours: hours,
-          type: e.querySelector(".type").value
-        });
-      }
+  document.querySelectorAll(".day").forEach((d,i)=>{
+    payload.entries.push({
+      day: i+1,
+      client: d.children[1].value,
+      hours: d.children[2].value,
+      type: d.children[3].value
     });
   });
 
-  await fetch(API_URL, {
+  fetch(API_URL, {
     method: "POST",
-    body: JSON.stringify(data)
-  });
+    body: JSON.stringify(payload)
+  })
+  .then(r=>r.text())
+  .then(()=>alert("Encodage envoyé ✅"))
+  .catch(()=>alert("Erreur ❌"));
 }
-
-for (let i = 1; i <= daysInMonth; i++) {
-  const d = document.createElement("div");
-  d.className = "day";
-  d.innerHTML = `
-    <strong>Jour ${i}</strong>
-    <div class="entry">
-      <input class="client" placeholder="Client">
-      <input class="hours" type="number" placeholder="Heures">
-      <select class="type">
-        <option value="work">Presté</option>
-        <option value="vacation">Vacances</option>
-        <option value="holiday">Férié</option>
-      </select>
-    </div>
-    <div class="entry">
-      <input class="client" placeholder="Client">
-      <input class="hours" type="number" placeholder="Heures">
-      <select class="type">
-        <option value="work">Presté</option>
-        <option value="vacation">Vacances</option>
-        <option value="holiday">Férié</option>
-      </select>
-    </div>
-    <div class="total-day"></div>
-  `;
-  calendar.appendChild(d);
-}
-
-document.addEventListener("input", () => {
-  calculateTotals();
-  sendData();
-});
 </script>
 
 </body>
 </html>
+
 
 
 
