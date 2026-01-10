@@ -1,47 +1,41 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-<meta charset="UTF-8">
-<title>Manager – A Master’s Cleaning</title>
-
-<style>
-body {
-  font-family: Arial, sans-serif;
-  background: #f4f4f4;
-  padding: 20px;
-}
-
-h1 {
-  text-align: center;
-}
-
-table {
-  width: 100%;
-  border-collapse: collapse;
-  background: white;
-  margin-top: 20px;
-}
-
-th, td {
-  border: 1px solid #ccc;
-  padding: 8px;
-  text-align: center;
-}
-
-th {
-  background: #000;
-  color: white;
-}
-</style>
+  <meta charset="UTF-8">
+  <title>Manager – Encodages</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      padding: 20px;
+      background: #f4f4f4;
+    }
+    h1 {
+      text-align: center;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      background: white;
+    }
+    th, td {
+      border: 1px solid #ccc;
+      padding: 8px;
+      text-align: center;
+    }
+    th {
+      background: #333;
+      color: white;
+    }
+  </style>
 </head>
-
 <body>
 
-<h1>📊 Encodages des travailleurs</h1>
+<h1>📋 Encodages – A Masters Cleaning</h1>
 
 <table>
   <thead>
     <tr>
+      <th>Date encodage</th>
       <th>Nom</th>
       <th>Jour</th>
       <th>Client</th>
@@ -53,27 +47,26 @@ th {
 </table>
 
 <script>
-const API_URL = "NOUVELLE_URL_WEB_APP"; // 💥 remplace cette ligne
+const API_URL = "https://script.google.com/macros/s/AKfycbwpga1Fox-jaBa6znaJgLib2XeIF8MW1wGKQA7egAVakMbR6wue8HaL634ZAxQMhWQbpQ/exec";
 
 fetch(API_URL)
-  .then(response => response.json())
+  .then(res => res.json())
   .then(rows => {
     const tbody = document.getElementById("data");
 
-    rows.forEach(r => {
+    rows.forEach(row => {
       const tr = document.createElement("tr");
-      tr.innerHTML = `
-        <td>${r.name}</td>
-        <td>${r.day}</td>
-        <td>${r.client}</td>
-        <td>${r.hours}</td>
-        <td>${r.type}</td>
-      `;
+      row.forEach(cell => {
+        const td = document.createElement("td");
+        td.textContent = cell;
+        tr.appendChild(td);
+      });
       tbody.appendChild(tr);
     });
   })
-  .catch(error => {
-    console.error("Erreur lors de la récupération :", error);
+  .catch(err => {
+    alert("Erreur de chargement des données");
+    console.error(err);
   });
 </script>
 
