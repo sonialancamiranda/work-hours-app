@@ -2,7 +2,7 @@
 <html lang="fr">
 <head>
 <meta charset="UTF-8">
-<title>A Master’s Cleaning</title>
+<title>A Master’s Cleaning – Encodage</title>
 
 <style>
 body {
@@ -24,12 +24,12 @@ body {
 input, select, textarea {
   width: 100%;
   padding: 5px;
-  margin-bottom: 5px;
+  margin-bottom: 4px;
 }
 
 .weekdays, .calendar {
   display: grid;
-  grid-template-columns: repeat(5, 1fr);
+  grid-template-columns: repeat(5, 1fr); /* Lundi → Vendredi */
   gap: 10px;
 }
 
@@ -64,7 +64,7 @@ input, select, textarea {
 <body>
 
 <div class="header">
-  <img src="LOGO A MASTER'S modifie.jpg" class="logo">
+  <img src="logo-amasters-cleaning.jpg" class="logo">
   <h1>A Master’s Cleaning</h1>
   <p>Calendrier mensuel – Encodage des heures</p>
 </div>
@@ -83,15 +83,18 @@ input, select, textarea {
 
 <div class="totals">
   <p>🧹 Presté : <span id="workTotal">0</span> h</p>
-  <p>🌴 Vacances : <span id="vacationTotal">0</span> h</p>
+  <p>🏖️ Vacances : <span id="vacationTotal">0</span> h</p>
   <p>🎉 Férié : <span id="holidayTotal">0</span> h</p>
   <hr>
   <p><strong>Total mois : <span id="monthlyTotal">0</span> h</strong></p>
 </div>
 
+<textarea id="notes" placeholder="Notes générales (optionnel)"></textarea>
+
 <script>
-const calendar = document.getElementById("calendar");
+const API_URL = "https://script.google.com/macros/s/AKfycbztDSgsG_-IzvsoJs1WZinutxPePCoovRW6QL-VvNhyEsYDuwOVvDgHMCF5nx9reR5IpA/exec";
 const daysInMonth = 31;
+const calendar = document.getElementById("calendar");
 
 function calculateTotals() {
   let work = 0, vacation = 0, holiday = 0;
@@ -99,7 +102,6 @@ function calculateTotals() {
   document.querySelectorAll(".entry").forEach(e => {
     const h = parseFloat(e.querySelector(".hours").value) || 0;
     const t = e.querySelector(".type").value;
-
     if (t === "work") work += h;
     if (t === "vacation") vacation += h;
     if (t === "holiday") holiday += h;
@@ -111,46 +113,40 @@ function calculateTotals() {
   monthlyTotal.innerText = work + vacation + holiday;
 }
 
-function saveData() {
+async function sendData() {
+  if (!employeeName.value.trim()) return;
+
   const data = {
     name: employeeName.value,
+    notes: notes.value,
     entries: []
   };
 
-  document.querySelectorAll(".entry").forEach(e => {
-    data.entries.push({
-      client: e.querySelector(".client").value,
-      hours: e.querySelector(".hours").value,
-      type: e.querySelector(".type").value
+  document.querySelectorAll(".day").forEach((day, dIndex) => {
+    day.querySelectorAll(".entry").forEach(e => {
+      const hours = e.querySelector(".hours").value;
+      if (hours) {
+        data.entries.push({
+          day: dIndex + 1,
+          client: e.querySelector(".client").value,
+          hours: hours,
+          type: e.querySelector(".type").value
+        });
+      }
     });
   });
 
-  localStorage.setItem("amc_calendar", JSON.stringify(data));
-}
-
-function loadData() {
-  const data = JSON.parse(localStorage.getItem("amc_calendar"));
-  if (!data) return;
-
-  employeeName.value = data.name || "";
-
-  document.querySelectorAll(".entry").forEach((e, i) => {
-    if (!data.entries[i]) return;
-    e.querySelector(".client").value = data.entries[i].client;
-    e.querySelector(".hours").value = data.entries[i].hours;
-    e.querySelector(".type").value = data.entries[i].type;
+  await fetch(API_URL, {
+    method: "POST",
+    body: JSON.stringify(data)
   });
-
-  calculateTotals();
 }
 
 for (let i = 1; i <= daysInMonth; i++) {
-  const day = document.createElement("div");
-  day.className = "day";
-
-  day.innerHTML = `
+  const d = document.createElement("div");
+  d.className = "day";
+  d.innerHTML = `
     <strong>Jour ${i}</strong>
-
     <div class="entry">
       <input class="client" placeholder="Client">
       <input class="hours" type="number" placeholder="Heures">
@@ -160,7 +156,6 @@ for (let i = 1; i <= daysInMonth; i++) {
         <option value="holiday">Férié</option>
       </select>
     </div>
-
     <div class="entry">
       <input class="client" placeholder="Client">
       <input class="hours" type="number" placeholder="Heures">
@@ -170,21 +165,20 @@ for (let i = 1; i <= daysInMonth; i++) {
         <option value="holiday">Férié</option>
       </select>
     </div>
+    <div class="total-day"></div>
   `;
-
-  calendar.appendChild(day);
+  calendar.appendChild(d);
 }
 
 document.addEventListener("input", () => {
   calculateTotals();
-  saveData();
+  sendData();
 });
-
-loadData();
 </script>
 
 </body>
 </html>
+
 
 
 
