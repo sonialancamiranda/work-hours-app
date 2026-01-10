@@ -2,23 +2,17 @@
 <html lang="fr">
 <head>
 <meta charset="UTF-8">
-<title>A Master’s Cleaning – Manager</title>
+<title>Manager – A Master’s Cleaning</title>
 
 <style>
 body {
   font-family: Arial, sans-serif;
-  background: #f2f2f2;
+  background: #f7f7f7;
   padding: 20px;
 }
 
-.header {
+h1 {
   text-align: center;
-  margin-bottom: 20px;
-}
-
-.logo {
-  max-width: 160px;
-  margin-bottom: 10px;
 }
 
 table {
@@ -28,7 +22,7 @@ table {
 }
 
 th, td {
-  border: 1px solid #ccc;
+  border: 1px solid #ddd;
   padding: 8px;
   text-align: center;
 }
@@ -38,28 +32,21 @@ th {
   color: white;
 }
 
-tr:nth-child(even) {
-  background: #f9f9f9;
-}
-
-.summary {
+.loading {
+  text-align: center;
+  font-weight: bold;
   margin-top: 20px;
-  background: white;
-  padding: 15px;
-  border-radius: 8px;
 }
 </style>
 </head>
 
 <body>
 
-<div class="header">
-  <img src="logo-amasters-cleaning.jpg" class="logo">
-  <h1>A Master’s Cleaning</h1>
-  <p>Vue manager – Encodages des travailleurs</p>
-</div>
+<h1>📊 Encodages – A Master’s Cleaning</h1>
 
-<table id="dataTable">
+<div class="loading" id="loading">Chargement des données…</div>
+
+<table id="dataTable" style="display:none;">
   <thead>
     <tr>
       <th>Date</th>
@@ -73,51 +60,44 @@ tr:nth-child(even) {
   <tbody></tbody>
 </table>
 
-<div class="summary">
-  <p>🧹 Total presté : <span id="workTotal">0</span> h</p>
-  <p>🏖️ Total vacances : <span id="vacationTotal">0</span> h</p>
-  <p>🎉 Total férié : <span id="holidayTotal">0</span> h</p>
-</div>
-
 <script>
-const API_URL = "https://script.google.com/macros/s/AKfycbztDSgsG_-IzvsoJs1WZinutxPePCoovRW6QL-VvNhyEsYDuwOVvDgHMCF5nx9reR5IpA/exec";
+const API_URL = "https://script.google.com/macros/s/AKfycby5FwLh13b6Qz6YtkjK-jhuks0VMN0OlVGtHNi9ZrtOubf655H0tKo-1p3Duxhq25ykWg/exec?action=read";
 
-async function loadData() {
-  const res = await fetch(API_URL);
-  const data = await res.json();
+fetch(API_URL)
+  .then(res => res.json())
+  .then(data => {
+    document.getElementById("loading").style.display = "none";
 
-  const tbody = document.querySelector("#dataTable tbody");
-  tbody.innerHTML = "";
+    if (data.length === 0) {
+      document.getElementById("loading").innerText = "Aucun encodage trouvé.";
+      document.getElementById("loading").style.display = "block";
+      return;
+    }
 
-  let work = 0, vacation = 0, holiday = 0;
+    const table = document.getElementById("dataTable");
+    const tbody = table.querySelector("tbody");
 
-  data.forEach(row => {
-    const tr = document.createElement("tr");
+    data.forEach(row => {
+      const tr = document.createElement("tr");
 
-    tr.innerHTML = `
-      <td>${row.timestamp || ""}</td>
-      <td>${row.name || ""}</td>
-      <td>${row.day || ""}</td>
-      <td>${row.client || ""}</td>
-      <td>${row.hours || ""}</td>
-      <td>${row.type || ""}</td>
-    `;
+      tr.innerHTML = `
+        <td>${row.Timestamp || ""}</td>
+        <td>${row.name || ""}</td>
+        <td>${row.day || ""}</td>
+        <td>${row.client || ""}</td>
+        <td>${row.hours || ""}</td>
+        <td>${row.type || ""}</td>
+      `;
 
-    const h = parseFloat(row.hours) || 0;
-    if (row.type === "work") work += h;
-    if (row.type === "vacation") vacation += h;
-    if (row.type === "holiday") holiday += h;
+      tbody.appendChild(tr);
+    });
 
-    tbody.appendChild(tr);
+    table.style.display = "table";
+  })
+  .catch(err => {
+    document.getElementById("loading").innerText = "Erreur de chargement des données";
+    console.error(err);
   });
-
-  document.getElementById("workTotal").innerText = work;
-  document.getElementById("vacationTotal").innerText = vacation;
-  document.getElementById("holidayTotal").innerText = holiday;
-}
-
-loadData();
-setInterval(loadData, 10000); // rafraîchit toutes les 10 secondes
 </script>
 
 </body>
