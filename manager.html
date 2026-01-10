@@ -1,41 +1,68 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-  <meta charset="UTF-8">
-  <title>Manager – Encodages</title>
-  <style>
-    body {
-      font-family: Arial, sans-serif;
-      padding: 20px;
-      background: #f4f4f4;
-    }
-    h1 {
-      text-align: center;
-    }
-    table {
-      width: 100%;
-      border-collapse: collapse;
-      background: white;
-    }
-    th, td {
-      border: 1px solid #ccc;
-      padding: 8px;
-      text-align: center;
-    }
-    th {
-      background: #333;
-      color: white;
-    }
-  </style>
+<meta charset="UTF-8">
+<title>A Master’s Cleaning – Manager</title>
+
+<style>
+body {
+  font-family: Arial, sans-serif;
+  background: #f2f2f2;
+  padding: 20px;
+}
+
+.header {
+  text-align: center;
+  margin-bottom: 20px;
+}
+
+.logo {
+  max-width: 160px;
+  margin-bottom: 10px;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  background: white;
+}
+
+th, td {
+  border: 1px solid #ccc;
+  padding: 8px;
+  text-align: center;
+}
+
+th {
+  background: #333;
+  color: white;
+}
+
+tr:nth-child(even) {
+  background: #f9f9f9;
+}
+
+.summary {
+  margin-top: 20px;
+  background: white;
+  padding: 15px;
+  border-radius: 8px;
+}
+</style>
 </head>
+
 <body>
 
-<h1>📋 Encodages – A Masters Cleaning</h1>
+<div class="header">
+  <img src="logo-amasters-cleaning.jpg" class="logo">
+  <h1>A Master’s Cleaning</h1>
+  <p>Vue manager – Encodages des travailleurs</p>
+</div>
 
-<table>
+<table id="dataTable">
   <thead>
     <tr>
-      <th>Date encodage</th>
+      <th>Date</th>
       <th>Nom</th>
       <th>Jour</th>
       <th>Client</th>
@@ -43,31 +70,54 @@
       <th>Type</th>
     </tr>
   </thead>
-  <tbody id="data"></tbody>
+  <tbody></tbody>
 </table>
 
+<div class="summary">
+  <p>🧹 Total presté : <span id="workTotal">0</span> h</p>
+  <p>🏖️ Total vacances : <span id="vacationTotal">0</span> h</p>
+  <p>🎉 Total férié : <span id="holidayTotal">0</span> h</p>
+</div>
+
 <script>
-const API_URL = "https://script.google.com/macros/s/AKfycbwpga1Fox-jaBa6znaJgLib2XeIF8MW1wGKQA7egAVakMbR6wue8HaL634ZAxQMhWQbpQ/exec";
+const API_URL = "https://script.google.com/macros/s/AKfycbztDSgsG_-IzvsoJs1WZinutxPePCoovRW6QL-VvNhyEsYDuwOVvDgHMCF5nx9reR5IpA/exec";
 
-fetch(API_URL)
-  .then(res => res.json())
-  .then(rows => {
-    const tbody = document.getElementById("data");
+async function loadData() {
+  const res = await fetch(API_URL);
+  const data = await res.json();
 
-    rows.forEach(row => {
-      const tr = document.createElement("tr");
-      row.forEach(cell => {
-        const td = document.createElement("td");
-        td.textContent = cell;
-        tr.appendChild(td);
-      });
-      tbody.appendChild(tr);
-    });
-  })
-  .catch(err => {
-    alert("Erreur de chargement des données");
-    console.error(err);
+  const tbody = document.querySelector("#dataTable tbody");
+  tbody.innerHTML = "";
+
+  let work = 0, vacation = 0, holiday = 0;
+
+  data.forEach(row => {
+    const tr = document.createElement("tr");
+
+    tr.innerHTML = `
+      <td>${row.timestamp || ""}</td>
+      <td>${row.name || ""}</td>
+      <td>${row.day || ""}</td>
+      <td>${row.client || ""}</td>
+      <td>${row.hours || ""}</td>
+      <td>${row.type || ""}</td>
+    `;
+
+    const h = parseFloat(row.hours) || 0;
+    if (row.type === "work") work += h;
+    if (row.type === "vacation") vacation += h;
+    if (row.type === "holiday") holiday += h;
+
+    tbody.appendChild(tr);
   });
+
+  document.getElementById("workTotal").innerText = work;
+  document.getElementById("vacationTotal").innerText = vacation;
+  document.getElementById("holidayTotal").innerText = holiday;
+}
+
+loadData();
+setInterval(loadData, 10000); // rafraîchit toutes les 10 secondes
 </script>
 
 </body>
